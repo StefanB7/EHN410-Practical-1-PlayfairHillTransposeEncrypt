@@ -8,13 +8,15 @@ import string
 
 playfairKey = []
 
+#Playfair encryption algorithm
 def Playfair_Encrypt(key, plaintext):
+    # Test if the key is < 24 characters
+    if (len(key) > 24):
+        raise Exception("Key is too long, number of key characters > 24")
+    key = key.lower()
+
     #If the plaintext is a string to be encrypted:
     if (isinstance(plaintext,str)):
-        #Test if the key is < 24 characters
-        if (len(key) > 24):
-            raise Exception("Key is too long, number of key characters > 24")
-        key = key.lower()
 
         keyMatrix = generatePlayfairKeyAlpha(key)
 
@@ -113,18 +115,124 @@ def Playfair_Encrypt(key, plaintext):
 
         return cipherText
 
-
-
-
-
-
-
-
-
-
     #If the plaintext is an image (ndarray) that needs to be encrypted:
     if (isinstance(plaintext,np.ndarray)):
         print("Hello2")
+
+
+
+
+
+
+
+
+
+
+#Playfair decryption algorithm
+def Playfair_Decrypt(key, ciphertext):
+    # Test if the key is < 24 characters
+    if (len(key) > 24):
+        raise Exception("Key is too long, number of key characters > 24")
+    key = key.lower()
+
+
+    if (isinstance(ciphertext, str)):
+
+        keyMatrix = generatePlayfairKeyAlpha(key)
+
+        #================================================
+        # Begin decoding algorithm
+
+        plainText = ""
+
+        diagramIndex = 0
+
+        #Row and column where the first letter is found in the keyMatrix
+        rowF = 0
+        columnF = 0
+        #Row and column where the second letter is found in the keyMatrix
+        rowS = 0
+        columnS = 0
+
+        while (diagramIndex < len(ciphertext)):
+            firstLetter = ciphertext[diagramIndex]
+            secondLetter = ciphertext[diagramIndex+1]
+
+            rowSearch = 0
+            columnSearch = 0
+            bFoundFirst = False
+            bFoundSecond = False
+            #Find the row and column of the two letters in the diagram in the key matrix:
+            while ((rowSearch < 5) and (not(bFoundFirst) or not(bFoundSecond))):
+                if (keyMatrix[rowSearch][columnSearch] == firstLetter):
+                    rowF = rowSearch
+                    columnF = columnSearch
+                    bFoundFirst = True
+                elif (keyMatrix[rowSearch][columnSearch] == secondLetter):
+                    rowS = rowSearch
+                    columnS = columnSearch
+                    bFoundSecond = True
+
+                # Update the matrix indices
+                columnSearch += 1
+                if (columnSearch >= 5):
+                    columnSearch = 0
+                    rowSearch += 1
+
+            # The letter's positions in the key matrix has been obtained
+
+            #Get the plaintext characters corresponding to the ciphertext diagram:
+            # If the two characters are in the same row of the key matrix:
+            if (rowF == rowS):
+                # add to the plainText the characters to the left in the key matrix
+                plainText += (keyMatrix[rowF][(columnF - 1) % 5])
+                plainText += (keyMatrix[rowS][(columnS - 1) % 5])
+
+            # If the two characters are in the same column of the key matrix:
+            elif (columnF == columnS):
+                # add to the plainText the characters to the bottom in the key matrix
+                plainText += (keyMatrix[(rowF - 1) % 5][columnF])
+                plainText += (keyMatrix[(rowS - 1) % 5][columnS])
+            else:
+                # add to the plainText the character in the same row, but in its partner's column:
+                plainText += (keyMatrix[rowF][columnS])
+                plainText += (keyMatrix[rowS][columnF])
+
+            # Go to the next diagram
+            diagramIndex += 2
+
+        return plainText
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #If the ciphertext is an image (ndarray) that needs to be encrypted:
+    if (isinstance(ciphertext,np.ndarray)):
+        print("Playfair Decrypt met ndarray ciphertext")
+
+
+
+
+
+
+
+
+
+
+
 
 #Function cleans the input, removes any special characters (including spaces) and makes all letters lower case
 def cleanInput(input):
@@ -208,3 +316,5 @@ print(toNumber('a'))
 print(generatePlayfairKeyAlpha("Hj"))
 
 print(Playfair_Encrypt("monarchy","instruments"))
+
+print(Playfair_Decrypt("monarchy","gatlmzclrqxa"))
