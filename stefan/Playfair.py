@@ -273,7 +273,7 @@ def cleanInput(input):
     return cleanedInput
 
 def toNumber(letter):
-    return ord(letter) - 96
+    return ord(letter) - 97
 
 def generatePlayfairKeyAlpha(characterKey):
     # Generate the key:
@@ -321,6 +321,50 @@ def generatePlayfairKeyAlpha(characterKey):
 
     return charKeyMatrix
 
+def generatePlayfairKeyArray(characterKey):
+    #Generate the key
+
+    characterKey = characterKey.lower()
+
+    keyMatrix = np.empty((16, 16), dtype='u1')
+    alreadyIn = []
+    #Iterators:
+    row = 0
+    column = 0
+    for character in characterKey:
+        characterNum = toNumber(character)
+
+        if not(characterNum in alreadyIn):
+            keyMatrix[row][column] = characterNum
+            alreadyIn.append(characterNum)
+
+            #Update the matrix indices
+            column += 1
+            if (column >= 16):
+                column = 0
+                row += 1
+
+    #Fill in the rest of the key matrix with the remaining values up to 255:
+    index = 0
+    while (row < 16):
+        if not(index in alreadyIn):
+            keyMatrix[row][column] = index
+            alreadyIn.append(index)
+
+            #Update the matrix indices
+            column += 1
+            if (column >= 16):
+                column = 0
+                row += 1
+
+        #Test next value
+        index += 1
+
+    return keyMatrix
+
+
+
+
 
 
 
@@ -334,6 +378,8 @@ print(toNumber('a'))
 
 print(generatePlayfairKeyAlpha("monarchy"))
 
-print(Playfair_Encrypt("monarchy","Hello"))
+print(Playfair_Encrypt("monarchy","Helloi"))
 
-print(Playfair_Decrypt("monarchy","CFSUPM"))
+print(Playfair_Decrypt("monarchy","cfsupmsa"))
+
+print(generatePlayfairKeyArray("Stefan"))
