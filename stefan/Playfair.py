@@ -20,6 +20,9 @@ def Playfair_Encrypt(key, plaintext):
 
         keyMatrix = generatePlayfairKeyAlpha(key)
 
+        #Clean the plaintext
+        plaintext = cleanInput(plaintext)
+
         #Go through the plaintext, adding x's where two characters are in the same diagram
         plaintextCorrected = ""
 
@@ -32,7 +35,7 @@ def Playfair_Encrypt(key, plaintext):
                 plaintextCorrected += ('x')
                 plaintextCorrected += (plaintext[index])
                 indexConverted = index
-                index += 1
+                index += 2
             else:
                 plaintextCorrected += (plaintext[index - 1])
                 plaintextCorrected += (plaintext[index])
@@ -140,6 +143,9 @@ def Playfair_Decrypt(key, ciphertext):
 
         keyMatrix = generatePlayfairKeyAlpha(key)
 
+        #Clean the ciphertext:
+        ciphertext = cleanInput(ciphertext)
+
         #================================================
         # Begin decoding algorithm
 
@@ -201,17 +207,30 @@ def Playfair_Decrypt(key, ciphertext):
             # Go to the next diagram
             diagramIndex += 2
 
+        #TODO: Find out if this is necessary
+        #Remove the x's that were placed at repeating letters:
+
+        plainTextCopy = plainText
+        plainText = ""
+        index = 0
+
+        while (index < len(plainTextCopy)):
+            #If there are enough space left on the end to include index's double letter and x: (index+2)
+            if (index + 2 < len(plainTextCopy)):
+                #If double and x between them, skip the x
+                if ((plainTextCopy[index+1] == 'x') and (plainTextCopy[index] == plainTextCopy[index+2])):
+                    plainText += plainTextCopy[index]
+                    index += 2
+                else:
+                    #If not double just add the letter
+                    plainText += plainTextCopy[index]
+                    index += 1
+            else:
+                #Last few characters are added, those with (index + 2 < len(plainTextCopy))
+                plainText += plainTextCopy[index]
+                index += 1
+
         return plainText
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -313,8 +332,8 @@ print(cleanInput("Hi!, //@@ Hoe gaan dit vandag met jou?"))
 
 print(toNumber('a'))
 
-print(generatePlayfairKeyAlpha("Hj"))
+print(generatePlayfairKeyAlpha("monarchy"))
 
-print(Playfair_Encrypt("monarchy","instruments"))
+print(Playfair_Encrypt("monarchy","Hello"))
 
-print(Playfair_Decrypt("monarchy","gatlmzclrqxa"))
+print(Playfair_Decrypt("monarchy","CFSUPM"))
