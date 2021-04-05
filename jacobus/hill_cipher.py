@@ -25,9 +25,13 @@ def Hill_Encrypt(key, plaintext):
     C = []
     K = __makeMatrix(key)
 
+    
     for i in range(len(P) // m):
 
+        print(np.dot(P[m*i:m*i+m], K))
+
         C = np.concatenate((C, np.mod(np.dot(P[m*i:m*i+m], K), 26)), axis=None)
+
 
     # TODO: Sit die nog om na string as input string?
     return __arrayToString(C)
@@ -57,13 +61,10 @@ def Hill_Decrypt(key, ciphertext):
     # TODO: Sit die nog om na string as input string?
     return __arrayToString(P)
 
-
-
 # Get_Hill_Encryption_Matrix ()
 def Get_Hill_Encryption_Matrix():
     # TODO: float return ?
     return K
-
 
 
 # Helper functions:
@@ -90,7 +91,7 @@ def __determinant(m, arrM):
             - arrM[2][0]*arrM[1][1]*arrM[0][2] - arrM[1][0] * \
             arrM[0][1]*arrM[2][2] - arrM[0][0]*arrM[2][1]*arrM[1][2]
 
-    return int(d)%26
+    return int(d)
 
 def __inverseModulo(a):
     for i in range(1,26):
@@ -100,7 +101,9 @@ def __inverseModulo(a):
 
 def __inverse(m, arrM):
     inv = np.zeros(shape=(m, m))
-    det = __determinant(m, arrM)
+    det = __determinant(m, arrM)%26
+
+
 
     det = __inverseModulo(det)
 
@@ -140,8 +143,20 @@ wk = [[3,3],[2,5]]
 #print(__determinant(3,K))
 
 #print(Hill_Encrypt("RRFVSVCCT","paymoremoney"))
-print(Hill_Decrypt("RRFVSVCCT","rrlmwbkaspdh"))
+#print(Hill_Decrypt("RRFVSVCCT","rrlmwbkaspdh"))
+
+# print(Hill_Encrypt("DDCF","HELP"))
+
+#print(Hill_Decrypt("DDCF","uwxkpwxekseu"))
 
 
 #print(Hill_Encrypt("RRFVSVCCT","paymoremoney"))
+
 # print(Hill_Encrypt("DCIF","hillcipher"))
+# print(Hill_Decrypt("DCIF","hcrzssxnsp"))
+
+# print(Hill_Encrypt("DCIZ","hillcipher"))
+# print(Hill_Decrypt("DCIZ","hgrlswxxsr"))
+
+# print(Hill_Encrypt("DDCF","hillcipher"))
+# print(Hill_Decrypt("DDCF","ljdkwuhcut"))
