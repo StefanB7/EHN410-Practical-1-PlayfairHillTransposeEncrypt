@@ -120,8 +120,58 @@ def Playfair_Encrypt(key, plaintext):
 
     #If the plaintext is an image (ndarray) that needs to be encrypted:
     if (isinstance(plaintext,np.ndarray)):
-        print("Hello2")
+        #Get the necryption key matrix:
+        keyMatrix = generatePlayfairKeyArray(key)
 
+        #Check the plaintext's dimentions:
+        numRows = plaintext.shape[0]
+        numColumns = plaintext.shape[1]
+        if (plaintext.ndim == 2):
+            numLayers = 1
+        else:
+            numLayers = plaintext.shape[2]
+
+        #Test if there is an AlphaLayer:
+        bAlphaLayer = False
+        if (numLayers > 3):
+            bAlphaLayer = True
+            numLayers = 3
+
+        #Ciphertext variable:
+        keyMatrix = np.empty((numRows, numColumns, numLayers), dtype='u1')
+
+        #Iterate over all the layers except the Alpha Layer:
+        for layer in range(numLayers):
+            diagramIndexRowFirst = 0
+            diagramIndexColumnFirst = 0
+
+            diagramIndexRowSecond = 0
+            diagramIndexColumnSecond = 1
+
+
+
+            while diagramIndexRowFirst < numRows:
+                valueFirst = plaintext[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
+                valueSecond = plaintext[diagramIndexRowSecond][diagramIndexColumnSecond][layer]
+
+                # Row and column where the first letter is found in the keyMatrix
+                rowF = 0
+                columnF = 0
+                # Row and column where the second letter is found in the keyMatrix
+                rowS = 0
+                columnS = 0
+
+
+
+def incrementTwoRowColumn(currentRow, currentColumn, totalRows, totalColumns):
+    returnColumn = currentColumn + 2
+    if returnColumn >= totalColumns:
+        returnRow = currentRow + 1
+        returnColumn = returnColumn - totalColumns
+    else:
+        returnRow = currentRow
+
+    return returnRow, returnColumn
 
 
 
@@ -383,3 +433,8 @@ print(Playfair_Encrypt("monarchy","Helloi"))
 print(Playfair_Decrypt("monarchy","cfsupmsa"))
 
 print(generatePlayfairKeyArray("Stefan"))
+
+row, column = incrementRowColumn(0,0,5,5)
+
+print(row)
+print(column)
