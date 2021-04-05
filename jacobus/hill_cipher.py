@@ -127,10 +127,12 @@ def __arrayToString(arrString):
 
 
 
-p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\red.png')
+p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\o_red.png')
 p_img = np.asarray(p_File)
 
-print(p_img[2])
+print("R: ",p_img[:,:,0].shape)
+print("G: ",p_img[:,:,1])
+print("B: ",p_img[:,:,2])
 
 
 
