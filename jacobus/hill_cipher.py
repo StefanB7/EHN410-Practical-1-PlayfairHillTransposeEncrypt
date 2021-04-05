@@ -127,10 +127,10 @@ def __arrayToString(arrString):
 
 
 
-p_File = Image.open('theoffice.png')
-p_img = np.asarray(Image)
+p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\red.png')
+p_img = np.asarray(p_File)
 
-print(p_img.shape)
+print(p_img[2])
 
 
 
