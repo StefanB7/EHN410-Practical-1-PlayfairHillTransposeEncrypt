@@ -6,6 +6,9 @@
 import numpy as np
 import string
 
+from PIL import Image
+from numpy import asarray
+
 playfairKey = []
 
 #Playfair encryption algorithm
@@ -138,19 +141,18 @@ def Playfair_Encrypt(key, plaintext):
             numLayers = 3
 
         #Ciphertext variable:
-        keyMatrix = np.empty((numRows, numColumns, numLayers), dtype='u1')
+        cipherText = np.empty((numRows, numColumns, numLayers), dtype='u1')
 
         #Iterate over all the layers except the Alpha Layer:
         for layer in range(numLayers):
+            #Variables keeping the indices of the current diagram elements:
             diagramIndexRowFirst = 0
             diagramIndexColumnFirst = 0
 
             diagramIndexRowSecond = 0
             diagramIndexColumnSecond = 1
 
-
-
-            while diagramIndexRowFirst < numRows:
+            while diagramIndexRowSecond < numRows:
                 valueFirst = plaintext[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
                 valueSecond = plaintext[diagramIndexRowSecond][diagramIndexColumnSecond][layer]
 
@@ -160,6 +162,62 @@ def Playfair_Encrypt(key, plaintext):
                 # Row and column where the second letter is found in the keyMatrix
                 rowS = 0
                 columnS = 0
+
+                #Search for the first and second values of the diagram in the key matrix:
+                bFoundFirst = False
+                bFoundSecond = False
+                rowSearch = 0
+                columnSearch = 0
+                while (rowSearch < 16) and (not(bFoundFirst) or not(bFoundSecond)):
+                    if (valueFirst == keyMatrix[rowSearch][columnSearch]):
+                        rowF = rowSearch
+                        columnF = columnSearch
+                        bFoundFirst = True
+                    if (valueSecond == keyMatrix[rowSearch][columnSearch]):
+                        rowS = rowSearch
+                        columnS = columnSearch
+                        bFoundSecond = True
+
+                    # Update the matrix indices
+                    columnSearch += 1
+                    if (columnSearch >= 16):
+                        columnSearch = 0
+                        rowSearch += 1
+
+                # The value's positions in the key matrix have been obtained
+
+                # get the two ciphertext characters corresponding to the diagram:
+
+                # If the two characters are in the same row of the key matrix:
+                if (rowF == rowS):
+                    # add to the ciphertext the characters to the right in the key matrix
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][(columnF + 1) % 16]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[rowS][(columnS + 1) % 16]
+
+                # If the two characters are in the same column of the key matrix:
+                elif (columnF == columnS):
+                    # add to the ciphertext the characters to the bottom in the key matrix
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[(rowF+1)%16][columnF]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[(rowS+1)%16][columnS]
+                else:
+                    # add to the ciphertext the character in the same row, but in its partner's column:
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][columnS]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[rowS][columnF]
+
+                diagramIndexRowFirst, diagramIndexColumnFirst = incrementTwoRowColumn(diagramIndexRowFirst,diagramIndexColumnFirst,numRows,numColumns)
+                diagramIndexRowSecond, diagramIndexColumnSecond = incrementTwoRowColumn(diagramIndexRowSecond,diagramIndexColumnSecond,numRows,numColumns)
+
+        #Handle the case when the Alpha layer is included in the array:
+        if (numLayers >= 4):
+            #Copy the alpha layer to the ciphertext array:
+            for rowCopy in range(numRows):
+                for columnCopy in range(numColumns):
+                    cipherText[rowCopy][columnCopy][4] = plaintext[rowCopy][columnCopy][4]
+
+        return cipherText
+
+
+
 
 
 
@@ -434,7 +492,16 @@ print(Playfair_Decrypt("monarchy","cfsupmsa"))
 
 print(generatePlayfairKeyArray("Stefan"))
 
-row, column = incrementRowColumn(0,0,5,5)
-
+row, column = incrementTwoRowColumn(0,0,2,2)
 print(row)
 print(column)
+
+
+#Images:
+image = Image.open('baby_yoda.jpeg')
+
+data = asarray(image)
+
+dataBack = Playfair_Encrypt("Stefan",data)
+
+image2 = Image.fromarray(dataBack).save("encypted.jpeg")
