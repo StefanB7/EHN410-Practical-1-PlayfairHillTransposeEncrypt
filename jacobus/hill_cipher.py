@@ -1,17 +1,16 @@
 # TODO: moet ek error goed maak indien inputs verkeerd is?
+# TODO: sit error code goed in exception
 
 from PIL import Image
 import numpy as np
 import string
 
 K = None
+ 
+############################ Main functions: ############################
 
-# Main functions:
-
-# Hill_Encrypt (key : String, plaintext : String or Int ndarray)
 # TODO: kan my code hanteer as jy 2 keer encryption na mekaar doen?
-
-
+# Hill_Encrypt (key : String, plaintext : String or Int ndarray)
 def Hill_Encrypt(key, plaintext):
     if len(key) == 4:
         m = 2
@@ -20,18 +19,17 @@ def Hill_Encrypt(key, plaintext):
 
     # TODO: skep nog geval waar hy n png kan handle
     if type(plaintext) is not np.ndarray:
-        P = __cleanString(plaintext)
+       P = __cleanString(plaintext)
+    else:
+        print("image")
+
 
     C = []
     K = __makeMatrix(key)
-
     
     for i in range(len(P) // m):
-
-        print(np.dot(P[m*i:m*i+m], K))
-
+        
         C = np.concatenate((C, np.mod(np.dot(P[m*i:m*i+m], K), 26)), axis=None)
-
 
     # TODO: Sit die nog om na string as input string?
     return __arrayToString(C)
@@ -67,20 +65,18 @@ def Get_Hill_Encryption_Matrix():
     return K
 
 
-# Helper functions:
+############################ Helper functions: ##########################
 
 def __cleanString(strText):
     s = strText.lower()
     s = ''.join(str(ord(i)-97)+',' for i in s if i.isalpha())
     return np.fromstring(s, dtype=int, sep=',')
 
-
 def __makeMatrix(strKey):
     if len(strKey) == 4:
         return np.array(list(__cleanString(strKey))).reshape(2, 2)
     else:
         return np.array(list(__cleanString(strKey))).reshape(3, 3)
-
 
 def __determinant(m, arrM):
 
@@ -97,14 +93,13 @@ def __inverseModulo(a):
     for i in range(1,26):
         if (a*i)%26 == 1:
             return i
+    
+    print("sit nog n error hier in iets soos : Key matrix determinant does not have modular multiplicative inverse")
     return -1
 
 def __inverse(m, arrM):
     inv = np.zeros(shape=(m, m))
     det = __determinant(m, arrM)%26
-
-
-
     det = __inverseModulo(det)
 
     for i in range(m):
@@ -125,20 +120,39 @@ def __arrayToString(arrString):
     return ''.join(chr(int(i)+97) for i in arrString)
 
 
-a = [[2, 3, 3], [4, 5, 6], [7, 8, 9]]
-b = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-c = [[2, 3], [1, 9]]
-
-A = [[5,8],[17,3]]
-K = [[17,17,5],[21,18,21],[2,2,19]]
 
 
-w = [[6,24,1],[13,16,10],[20,17,15]]
 
-wk = [[3,3],[2,5]]
+
+
+
+
+p_File = Image.open('theoffice.png')
+p_img = np.asarray(Image)
+
+print(p_img.shape)
+
+
+
+
+
+
+
+
+
+
+# a = [[2, 3, 3], [4, 5, 6], [7, 8, 9]]
+# b = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+# c = [[2, 3], [1, 9]]
+
+# A = [[5,8],[17,3]]
+# K = [[17,17,5],[21,18,21],[2,2,19]]
+
+# w = [[6,24,1],[13,16,10],[20,17,15]]
+
+# wk = [[3,3],[2,5]]
 
 # print(__inverse(2,wk))
-
 
 #print(__determinant(3,K))
 
@@ -146,9 +160,17 @@ wk = [[3,3],[2,5]]
 #print(Hill_Decrypt("RRFVSVCCT","rrlmwbkaspdh"))
 
 # print(Hill_Encrypt("DDCF","HELP"))
+# print(Hill_Decrypt("DDCF","dple"))
 
-#print(Hill_Decrypt("DDCF","uwxkpwxekseu"))
+# print(Hill_Encrypt("DDCF","THISWATERISVNICE"))
+# print(Hill_Encrypt("LUdd","toikoonzpnsddboa"))
+# print(Hill_Decrypt("LUdd","rgoiokkxwbzfklyu"))
+# print(Hill_Decrypt("DDCF","toikoonzpnsddboa"))
 
+# print(Hill_Encrypt("alphabeta","wearesafe"))
+# print(Hill_Decrypt("alphabeta","ciwwjzzyf"))
+
+# DDCA???
 
 #print(Hill_Encrypt("RRFVSVCCT","paymoremoney"))
 
@@ -160,3 +182,7 @@ wk = [[3,3],[2,5]]
 
 # print(Hill_Encrypt("DDCF","hillcipher"))
 # print(Hill_Decrypt("DDCF","ljdkwuhcut"))
+
+
+# https://crypto.interactive-maths.com/hill-cipher.html
+# let wel hulle gebruik C = KP mod 26 en ons (volgens handboek) C = PK mod 26, so ook vir decryption
