@@ -125,17 +125,24 @@ def __arrayToString(arrString):
 
 
 
+# TODO: hanteer nog case waar input nie die regte lengte is nie, maak exception, by fotos los net daai pixels uit maar gee nogsteeds die warning
 
-
-p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\o_red.png')
+p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office.png')
 p_img = np.asarray(p_File)
 
-print("R: ",p_img[:,:,0].shape)
+# extract 2D R,G,B arrays
+print("R: ",p_img[:,:,0])
 print("G: ",p_img[:,:,1])
 print("B: ",p_img[:,:,2])
 
+# From 2D array to 1D array
+r_channel = np.array(p_img[:,:,0]).reshape(1,p_img[:,:,0].shape[0]*p_img[:,:,0].shape[1])[0]
+g_channel = np.array(p_img[:,:,1]).reshape(1,p_img[:,:,1].shape[0]*p_img[:,:,1].shape[1])[0]
+b_channel = np.array(p_img[:,:,2]).reshape(1,p_img[:,:,2].shape[0]*p_img[:,:,2].shape[1])[0]
 
-
+print(r_channel)
+print(g_channel)
+print(b_channel)
 
 
 
