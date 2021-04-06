@@ -48,7 +48,6 @@ def Hill_Encrypt(key, plaintext):
 
         for i in range(len(r_channel) // m):
             r_enc = np.concatenate((r_enc,np.dot(r_channel[m*i:m*i+m], K)), axis=None)
-
         for j in range(len(g_channel) // m):
             g_enc = np.concatenate((g_enc,np.dot(g_channel[m*j:m*j+m], K)), axis=None)
 
@@ -199,21 +198,22 @@ def __arrayToString(arrString):
 
 # TODO: hanteer nog case waar input nie die regte lengte is nie, maak exception, by fotos los net daai pixels uit maar gee nogsteeds die warning
 
-p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office.png')
+p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\sample.png')
 p_img = np.asarray(p_File)
 
-print(p_img)
+#print(p_img)
 
 print("___________________________________________")
 
 img_enc = Hill_Encrypt("RRFVSVCCT",p_img)
+print("halfpad")
 img_dec = Hill_Decrypt("RRFVSVCCT",img_enc)
 
-print((Image.fromarray(img_dec.astype(np.uint8))).size)
+#print((Image.fromarray(img_dec.astype(np.uint8))).size)
 
 
-Image.fromarray(img_enc.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office_encrypted.png')
-Image.fromarray(img_dec.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office_decrypted.png')
+Image.fromarray(img_enc.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\sample_encrypted.png')
+Image.fromarray(img_dec.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\sample_decrypted.png')
 
 #print(p_img)
 
