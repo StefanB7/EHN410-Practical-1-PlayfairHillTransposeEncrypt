@@ -206,7 +206,7 @@ p_img = np.asarray(p_File)
 print("___________________________________________")
 
 img_enc = Hill_Encrypt("RRFVSVCCT",p_img)
-print("halfpad")
+print("half")
 img_dec = Hill_Decrypt("RRFVSVCCT",img_enc)
 
 #print((Image.fromarray(img_dec.astype(np.uint8))).size)
