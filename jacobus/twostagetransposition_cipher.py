@@ -14,6 +14,8 @@ def Transpose_Encrypt(key, stage, plaintext):
 
     P = P.reshape(-1,(len(K)))
 
+    print(P)
+
     C = []
 
     for i in range(len(K)):
@@ -53,7 +55,24 @@ def Transpose_Decrypt(key, stage, ciphertext):
 
     preP = preP.reshape((1,-1))[0]
 
-    P = "".join(preP) 
+    P = "".join(preP)
+
+    if stage==2:
+        C = np.array(list(__cleanStringAlpha(P)))
+        K = __cleanStringInt(key)
+        C = C.reshape((len(K),-1)).transpose()
+
+        preP = np.empty(shape=(len(C[:,0]),len(K)),dtype=str)
+
+        for i in range(len(K)):
+            pos = np.argmin(K)
+            K[pos] = 99
+            preP[:,pos] = C[:,i]
+
+
+        preP = preP.reshape((1,-1))[0]
+
+        P = "".join(preP)
 
     return P
 
@@ -73,10 +92,17 @@ def __arrayToString(arrString):
     return ''.join(chr(int(i)+97) for i in arrString)
 
 
-trans_enc = Transpose_Encrypt("helao",1,"Die is n baie lang sin ek ek wonder of hy gaan inaps")
+# trans_enc = Transpose_Encrypt("helao",2,"Die is n baie lang sin ek ek wonder of hy gaan inaps")
 
-print(trans_enc)
+# print(trans_enc)
 
-trans_dec = Transpose_Decrypt("helao",1,trans_enc)
 
-print(trans_dec)
+# trans_dec = Transpose_Decrypt("helao",2,trans_enc)
+
+# print(trans_dec)
+
+#TODO: vir die gevalle waar die key en die plaintext nie oplyn nie kan ek
+# - die laaste goed wat nie inpas nie net uitlos
+# - die key probeer herhaal of verminder sodat die plain text inpas, maar dit sal ook nie altyd werk nie, se maar die lengte van die plaintext is n priemgetal
+#TODO: exceptions
+#TODO: filler symbol is x want hy kom die minste voor in die woordeboek probability is laer, en a dubbel x bestaan nie in min woorde aan die begin en einde???
