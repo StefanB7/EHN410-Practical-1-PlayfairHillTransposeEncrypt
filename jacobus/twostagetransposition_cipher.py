@@ -9,8 +9,6 @@ import string
 
 # wat gebeur as die matriks nie heeltemal vol gemaak word met die plaintext nie
 def Transpose_Encrypt(key, stage, plaintext):
-    print("Transpose encrypt")
-
     P = np.array(list(__cleanStringAlpha(plaintext)))
     K = __cleanStringInt(key)
 
@@ -40,14 +38,24 @@ def Transpose_Encrypt(key, stage, plaintext):
 # Transpose_ Decrypt (key : String, stage : Int, ciphertext : String)
 def Transpose_Decrypt(key, stage, ciphertext):
     
-    
-    
-    
-    
-    
-    
-    
-    print("Transpose decrypt")
+    C = np.array(list(__cleanStringAlpha(ciphertext)))
+    K = __cleanStringInt(key)
+
+    C = C.reshape((len(K),-1)).transpose()
+
+    preP = np.empty(shape=(len(C[:,0]),len(K)),dtype=str)
+
+    for i in range(len(K)):
+        pos = np.argmin(K)
+        K[pos] = 99
+        preP[:,pos] = C[:,i]
+
+
+    preP = preP.reshape((1,-1))[0]
+
+    P = "".join(preP) 
+
+    return P
 
 
 ############################ Helper functions: ##########################
@@ -65,4 +73,10 @@ def __arrayToString(arrString):
     return ''.join(chr(int(i)+97) for i in arrString)
 
 
-Transpose_Encrypt("helao",1,"Die is n baie lang sin ek ek wonder of hy gaan inaps")
+trans_enc = Transpose_Encrypt("helao",1,"Die is n baie lang sin ek ek wonder of hy gaan inaps")
+
+print(trans_enc)
+
+trans_dec = Transpose_Decrypt("helao",1,trans_enc)
+
+print(trans_dec)
