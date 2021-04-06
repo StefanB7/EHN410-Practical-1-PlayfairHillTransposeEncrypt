@@ -1,5 +1,6 @@
 # TODO: moet ek error goed maak indien inputs verkeerd is?
 # TODO: sit error code goed in exception
+# TODO: kyk na array se formating orals (int, float, double ens)
 
 from PIL import Image
 import numpy as np
@@ -17,47 +18,92 @@ def Hill_Encrypt(key, plaintext):
     elif len(key) == 9:
         m = 3
 
-    # TODO: skep nog geval waar hy n png kan handle
-    if type(plaintext) is not np.ndarray:
-       P = __cleanString(plaintext)
-    else:
-        print("image")
-
-
     C = []
     K = __makeMatrix(key)
     
-    for i in range(len(P) // m):
+    # text
+    if type(plaintext) is not np.ndarray:
+        P = __cleanString(plaintext)
         
-        C = np.concatenate((C, np.mod(np.dot(P[m*i:m*i+m], K), 26)), axis=None)
+        for i in range(len(P) // m):
+            C = np.concatenate((C, np.mod(np.dot(P[m*i:m*i+m], K), 26)), axis=None)
 
-    # TODO: Sit die nog om na string as input string?
-    return __arrayToString(C)
+        # letters wat nie ge-encrypt is nie word maar nou unencrypted agter aan gesit,
+        if len(P) != len(C):
+            C = np.concatenate((C,P[len(C)::]),axis=None)
+        
+        return __arrayToString(C)
+    # images
+    else:
+        # exctract RGB
+        P = plaintext
+        
+        r_channel = np.array(plaintext[:,:,0]).reshape(1,plaintext[:,:,0].shape[0]*plaintext[:,:,0].shape[1])[0]
+        g_channel = np.array(plaintext[:,:,1]).reshape(1,plaintext[:,:,1].shape[0]*plaintext[:,:,1].shape[1])[0]
+        b_channel = np.array(plaintext[:,:,2]).reshape(1,plaintext[:,:,2].shape[0]*plaintext[:,:,2].shape[1])[0]
+
+        r_enc = []
+        g_enc = []
+        b_enc = []
+
+        for i in range(len(r_channel) // m):
+            r_enc = np.concatenate((r_enc,np.dot(P[m*i:m*i+m], K)), axis=None)
+        for j in range(len(g_channel) // m):
+            g_enc = np.concatenate((g_enc,np.dot(P[m*j:m*j+m], K)), axis=None)
+        for k in range(len(b_channel) // m):
+            b_enc = np.concatenate((b_enc,np.dot(P[m*k:m*k+m], K)), axis=None)
+
+        # letters wat nie ge-encrypt is nie word maar nou unencrypted agter aan gesit,
+        if len(r_channel) != len(r_enc):
+            r_enc = np.concatenate((r_enc,r_channel[len(r_enc)::]),axis=None)
+        if len(g_channel) != len(g_enc):
+            g_enc = np.concatenate((g_enc,g_channel[len(g_enc)::]),axis=None)
+        if len(b_channel) != len(b_enc):
+            b_enc = np.concatenate((b_enc,b_channel[len(b_enc)::]),axis=None)
+
+        
+        r_enc = r_enc.reshape(plaintext[:,:,0].shape[0],plaintext[:,:,0].shape[1])
+        b_enc = b_enc.reshape(plaintext[:,:,1].shape[0],plaintext[:,:,1].shape[1])
+        g_enc = g_enc.reshape(plaintext[:,:,2].shape[0],plaintext[:,:,2].shape[1])
+
+        return np.dstack((r_enc,g_enc,b_enc))
 
 # Hill_Decrypt (key : String, ciphertext : String or Int ndarray)
 def Hill_Decrypt(key, ciphertext):
 
     # TODO: png check
-
     if len(key) == 4:
         m = 2
     elif len(key) == 9:
         m = 3
     
     P = []
+    K = __makeMatrix(key)
     
     if type(ciphertext) is not np.ndarray:
         C = __cleanString(ciphertext)
+        K_inv = __inverse(m,K,False)
 
-    K = __makeMatrix(key)
+        for i in range(len(C) // m):
+            P = np.concatenate((P, np.mod(np.dot(C[m*i:m*i+m], K_inv), 26)), axis=None)
 
-    K_inv = __inverse(m,K)
+        if len(C) != len(P):
+            P = np.concatenate((P,C[len(P)::]),axis=None)
+        
+        return __arrayToString(P)
 
-    for i in range(len(C) // m):
-        P = np.concatenate((P, np.mod(np.dot(C[m*i:m*i+m], K_inv), 26)), axis=None)
+    else:
+        C = ciphertext
 
-    # TODO: Sit die nog om na string as input string?
-    return __arrayToString(P)
+        K_inv = __inverse(m,K,True)
+
+        for i in range(len(C) // m):
+            P = np.concatenate((P,np.dot(C[m*i:m*i+m], K_inv)), axis=None)
+
+        if len(C) != len(P):
+            P = np.concatenate((P,C[len(P)::]),axis=None)
+
+        return P
 
 # Get_Hill_Encryption_Matrix ()
 def Get_Hill_Encryption_Matrix():
@@ -97,10 +143,17 @@ def __inverseModulo(a):
     print("sit nog n error hier in iets soos : Key matrix determinant does not have modular multiplicative inverse")
     return -1
 
-def __inverse(m, arrM):
+def __inverse(m, arrM, png):
     inv = np.zeros(shape=(m, m))
-    det = __determinant(m, arrM)%26
-    det = __inverseModulo(det)
+
+    # image
+    if png == True:
+        det = __determinant(m, arrM)
+        det = 1/det
+    # text
+    else:
+        det = __determinant(m, arrM)%26
+        det = __inverseModulo(det)
 
     for i in range(m):
         for j in range(m):
@@ -114,14 +167,13 @@ def __inverse(m, arrM):
 
             inv[i][j] = np.dot(((-1)**(i+j))*(det), det_Dij)
 
-    return np.mod(inv,26)
+    if png == True:
+        return inv
+    else:
+        return np.mod(inv,26)
 
 def __arrayToString(arrString):
     return ''.join(chr(int(i)+97) for i in arrString)
-
-
-
-
 
 
 
@@ -130,23 +182,34 @@ def __arrayToString(arrString):
 p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office.png')
 p_img = np.asarray(p_File)
 
+print(p_img)
+
 # extract 2D R,G,B arrays
-print("R: ",p_img[:,:,0])
-print("G: ",p_img[:,:,1])
-print("B: ",p_img[:,:,2])
+#print("R: ",p_img[:,:,0])
+# print("G: ",p_img[:,:,1])
+# print("B: ",p_img[:,:,2])
 
 # From 2D array to 1D array
 r_channel = np.array(p_img[:,:,0]).reshape(1,p_img[:,:,0].shape[0]*p_img[:,:,0].shape[1])[0]
 g_channel = np.array(p_img[:,:,1]).reshape(1,p_img[:,:,1].shape[0]*p_img[:,:,1].shape[1])[0]
 b_channel = np.array(p_img[:,:,2]).reshape(1,p_img[:,:,2].shape[0]*p_img[:,:,2].shape[1])[0]
 
-print(r_channel)
-print(g_channel)
-print(b_channel)
+#print(r_channel)
+# print(g_channel)
+# print(b_channel)
+
+# a = np.array([[1,2,3,4,5,6,7,8],[1,2,3,4,5,6,7,8],[1,2,3,4,5,6,7,8]])
+
+# b = np.array([[11,12,13,14,15,16,17,18],[11,12,13,14,15,16,17,18],[11,12,13,14,15,16,17,18]])
+
+# c = np.array([[21,22,23,24,25,26,27,28],[21,22,23,24,25,26,27,28],[21,22,23,24,25,26,27,28]])
+
+# print(np.dstack((a,b,c)))
 
 
 
-
+# print(Hill_Encrypt("RRFVSVCCT",a))
+# print(Hill_Decrypt("RRFVSVCCT",np.array([65,59,104,10175,9413,11416,6145,5812,3821, 9])))
 
 
 
@@ -165,8 +228,8 @@ print(b_channel)
 
 #print(__determinant(3,K))
 
-#print(Hill_Encrypt("RRFVSVCCT","paymoremoney"))
-#print(Hill_Decrypt("RRFVSVCCT","rrlmwbkaspdh"))
+# print(Hill_Encrypt("RRFVSVCCT","paymoremoneyaa"))
+# print(Hill_Decrypt("RRFVSVCCT","rrlmwbkaspdhaa"))
 
 # print(Hill_Encrypt("DDCF","HELP"))
 # print(Hill_Decrypt("DDCF","dple"))
