@@ -47,11 +47,13 @@ def Hill_Encrypt(key, plaintext):
         b_enc = []
 
         for i in range(len(r_channel) // m):
-            r_enc = np.concatenate((r_enc,np.dot(P[m*i:m*i+m], K)), axis=None)
+            r_enc = np.concatenate((r_enc,np.dot(r_channel[m*i:m*i+m], K)), axis=None)
+
         for j in range(len(g_channel) // m):
-            g_enc = np.concatenate((g_enc,np.dot(P[m*j:m*j+m], K)), axis=None)
+            g_enc = np.concatenate((g_enc,np.dot(g_channel[m*j:m*j+m], K)), axis=None)
+
         for k in range(len(b_channel) // m):
-            b_enc = np.concatenate((b_enc,np.dot(P[m*k:m*k+m], K)), axis=None)
+            b_enc = np.concatenate((b_enc,np.dot(b_channel[m*k:m*k+m], K)), axis=None)
 
         # letters wat nie ge-encrypt is nie word maar nou unencrypted agter aan gesit,
         if len(r_channel) != len(r_enc):
@@ -61,10 +63,9 @@ def Hill_Encrypt(key, plaintext):
         if len(b_channel) != len(b_enc):
             b_enc = np.concatenate((b_enc,b_channel[len(b_enc)::]),axis=None)
 
-        
         r_enc = r_enc.reshape(plaintext[:,:,0].shape[0],plaintext[:,:,0].shape[1])
-        b_enc = b_enc.reshape(plaintext[:,:,1].shape[0],plaintext[:,:,1].shape[1])
-        g_enc = g_enc.reshape(plaintext[:,:,2].shape[0],plaintext[:,:,2].shape[1])
+        g_enc = g_enc.reshape(plaintext[:,:,1].shape[0],plaintext[:,:,1].shape[1])
+        b_enc = b_enc.reshape(plaintext[:,:,2].shape[0],plaintext[:,:,2].shape[1])
 
         return np.dstack((r_enc,g_enc,b_enc))
 
@@ -95,15 +96,35 @@ def Hill_Decrypt(key, ciphertext):
     else:
         C = ciphertext
 
+        r_channel = np.array(ciphertext[:,:,0]).reshape(1,ciphertext[:,:,0].shape[0]*ciphertext[:,:,0].shape[1])[0]
+        g_channel = np.array(ciphertext[:,:,1]).reshape(1,ciphertext[:,:,1].shape[0]*ciphertext[:,:,1].shape[1])[0]
+        b_channel = np.array(ciphertext[:,:,2]).reshape(1,ciphertext[:,:,2].shape[0]*ciphertext[:,:,2].shape[1])[0]
+
+        r_dec = []
+        g_dec = []
+        b_dec = []
+
         K_inv = __inverse(m,K,True)
 
-        for i in range(len(C) // m):
-            P = np.concatenate((P,np.dot(C[m*i:m*i+m], K_inv)), axis=None)
+        for i in range(len(r_channel) // m):
+            r_dec = np.concatenate((r_dec,np.dot(r_channel[m*i:m*i+m], K_inv)), axis=None)
+        for j in range(len(g_channel) // m):
+            g_dec = np.concatenate((g_dec,np.dot(g_channel[m*j:m*j+m], K_inv)), axis=None)
+        for k in range(len(b_channel) // m):
+            b_dec = np.concatenate((b_dec,np.dot(b_channel[m*k:m*k+m], K_inv)), axis=None)
 
-        if len(C) != len(P):
-            P = np.concatenate((P,C[len(P)::]),axis=None)
+        if len(r_channel) != len(r_dec):
+            r_dec = np.concatenate((r_dec,r_channel[len(r_dec)::]),axis=None)
+        if len(g_channel) != len(g_dec):
+            g_dec = np.concatenate((g_dec,g_channel[len(g_dec)::]),axis=None)
+        if len(b_channel) != len(b_dec):
+            b_dec = np.concatenate((b_dec,b_channel[len(b_dec)::]),axis=None)
 
-        return P
+        r_dec = r_dec.reshape(ciphertext[:,:,0].shape[0],ciphertext[:,:,0].shape[1])
+        g_dec = g_dec.reshape(ciphertext[:,:,1].shape[0],ciphertext[:,:,1].shape[1])
+        b_dec = b_dec.reshape(ciphertext[:,:,2].shape[0],ciphertext[:,:,2].shape[1])
+
+        return np.dstack((r_dec,g_dec,b_dec))
 
 # Get_Hill_Encryption_Matrix ()
 def Get_Hill_Encryption_Matrix():
@@ -176,7 +197,6 @@ def __arrayToString(arrString):
     return ''.join(chr(int(i)+97) for i in arrString)
 
 
-
 # TODO: hanteer nog case waar input nie die regte lengte is nie, maak exception, by fotos los net daai pixels uit maar gee nogsteeds die warning
 
 p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office.png')
@@ -184,15 +204,54 @@ p_img = np.asarray(p_File)
 
 print(p_img)
 
+print("___________________________________________")
+
+img_enc = Hill_Encrypt("RRFVSVCCT",p_img)
+img_dec = Hill_Decrypt("RRFVSVCCT",img_enc)
+
+print((Image.fromarray(img_dec.astype(np.uint8))).size)
+
+
+Image.fromarray(img_enc.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office_encrypted.png')
+Image.fromarray(img_dec.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office_decrypted.png')
+
+#print(p_img)
+
 # extract 2D R,G,B arrays
 #print("R: ",p_img[:,:,0])
 # print("G: ",p_img[:,:,1])
 # print("B: ",p_img[:,:,2])
 
 # From 2D array to 1D array
-r_channel = np.array(p_img[:,:,0]).reshape(1,p_img[:,:,0].shape[0]*p_img[:,:,0].shape[1])[0]
-g_channel = np.array(p_img[:,:,1]).reshape(1,p_img[:,:,1].shape[0]*p_img[:,:,1].shape[1])[0]
-b_channel = np.array(p_img[:,:,2]).reshape(1,p_img[:,:,2].shape[0]*p_img[:,:,2].shape[1])[0]
+# r_channel = np.array(p_img[:,:,0]).reshape(1,p_img[:,:,0].shape[0]*p_img[:,:,0].shape[1])[0]
+# g_channel = np.array(p_img[:,:,1]).reshape(1,p_img[:,:,1].shape[0]*p_img[:,:,1].shape[1])[0]
+# b_channel = np.array(p_img[:,:,2]).reshape(1,p_img[:,:,2].shape[0]*p_img[:,:,2].shape[1])[0]
+
+# r_channel = r_channel.reshape(p_img[:,:,0].shape[0],p_img[:,:,0].shape[1])
+# g_channel = g_channel.reshape(p_img[:,:,1].shape[0],p_img[:,:,1].shape[1])
+# b_channel = b_channel.reshape(p_img[:,:,2].shape[0],p_img[:,:,2].shape[1])
+
+# print(type(p_File))
+
+# # summarize image details
+# print(p_File.mode)
+# print(p_File.size)
+
+
+# print("_______________________________")
+
+
+# print(np.dstack((r_channel,g_channel,b_channel)))
+
+# Img2 = Image.fromarray(np.dstack((r_channel,g_channel,b_channel)))
+# print(type(Img2))
+
+# # summarize image details
+# print(Img2.mode)
+# print(Img2.size)
+
+# Img2.save('office_out.png')
+
 
 #print(r_channel)
 # print(g_channel)
