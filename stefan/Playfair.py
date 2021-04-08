@@ -123,6 +123,9 @@ def Playfair_Encrypt(key, plaintext):
 
     #If the plaintext is an image (ndarray) that needs to be encrypted:
     if (isinstance(plaintext,np.ndarray)):
+        #Copy the plaintext:
+        plainTextCopy = plaintext.copy()
+        
         #Get the necryption key matrix:
         keyMatrix = generatePlayfairKeyArray(key)
 
@@ -139,12 +142,56 @@ def Playfair_Encrypt(key, plaintext):
         if (numLayers > 3):
             bAlphaLayer = True
             numLayers = 3
+            
+        #TODO:Check the incoming array's dimentions
 
         #Ciphertext variable:
         cipherText = np.empty((numRows, numColumns, numLayers), dtype='u1')
 
         #Iterate over all the layers except the Alpha Layer:
         for layer in range(numLayers):
+            #Calculate the least probable pixel value for the given layer:
+            leastValuesCount = [0] * 256
+            columnLeast = 0
+            rowLeast = 0
+            
+            while rowLeast < numRows:
+                leastValuesCount[plainTextCopy[rowLeast][columnLeast][layer]] += 1
+                rowLeast, columnLeast = incrementRowColumn(rowLeast,columnLeast,numRows, numColumns, 1)
+            
+            #The value that occurs the least is assigned the placeholder
+            leastValue = leastValuesCount.index(min(leastValuesCount))
+            
+            #The top left pixel stores the leastValue element:
+            if not(numLayers == 1):
+                plainTextCopy[0][0][0] = leastValue
+            else:
+                plainTextCopy[0][0] = leastValue
+                
+            #Change all the leastvalue occurrences in the plaintext to be one more:
+            columnLeast = 1 #Skip the first element
+            rowLeast = 0
+            
+            while rowLeast < numRows:
+                if numLayers > 1:
+                    if (plainTextCopy[rowLeast][columnLeast][layer] == leastValue):
+                        if leastValue < 255:
+                            plainTextCopy[rowLeast][columnLeast][layer] = leastValue + 1
+                        else:
+                            plainTextCopy[rowLeast][columnLeast][layer] = leastValue - 1
+                else:
+                    if (plainTextCopy[rowLeast][columnLeast] == leastValue):
+                        if leastValue < 255:
+                            plainTextCopy[rowLeast][columnLeast] = leastValue + 1
+                        else:
+                            plainTextCopy[rowLeast][columnLeast] = leastValue - 1
+
+                rowLeast, columnLeast = incrementRowColumn(rowLeast, columnLeast, numRows, numColumns, 1)
+                            
+            
+            #The Playfair encryption algorithm:                           
+            
+            
             #Variables keeping the indices of the current diagram elements:
             diagramIndexRowFirst = 0
             diagramIndexColumnFirst = 0
@@ -153,8 +200,12 @@ def Playfair_Encrypt(key, plaintext):
             diagramIndexColumnSecond = 1
 
             while diagramIndexRowSecond < numRows:
-                valueFirst = plaintext[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
-                valueSecond = plaintext[diagramIndexRowSecond][diagramIndexColumnSecond][layer]
+                valueFirst = plainTextCopy[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
+                valueSecond = plainTextCopy[diagramIndexRowSecond][diagramIndexColumnSecond][layer]
+                
+                #If the values are the same, replace the second value with the least occurring value (placeholder, calculated above):
+                if (valueFirst == valueSecond):
+                    valueSecond = leastValue
 
                 # Row and column where the first letter is found in the keyMatrix
                 rowF = 0
@@ -204,8 +255,8 @@ def Playfair_Encrypt(key, plaintext):
                     cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][columnS]
                     cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[rowS][columnF]
 
-                diagramIndexRowFirst, diagramIndexColumnFirst = incrementTwoRowColumn(diagramIndexRowFirst,diagramIndexColumnFirst,numRows,numColumns)
-                diagramIndexRowSecond, diagramIndexColumnSecond = incrementTwoRowColumn(diagramIndexRowSecond,diagramIndexColumnSecond,numRows,numColumns)
+                diagramIndexRowFirst, diagramIndexColumnFirst = incrementRowColumn(diagramIndexRowFirst,diagramIndexColumnFirst,numRows,numColumns,2)
+                diagramIndexRowSecond, diagramIndexColumnSecond = incrementRowColumn(diagramIndexRowSecond,diagramIndexColumnSecond,numRows,numColumns,2)
 
         #Handle the case when the Alpha layer is included in the array:
         if (numLayers >= 4):
@@ -221,8 +272,8 @@ def Playfair_Encrypt(key, plaintext):
 
 
 
-def incrementTwoRowColumn(currentRow, currentColumn, totalRows, totalColumns):
-    returnColumn = currentColumn + 2
+def incrementRowColumn(currentRow, currentColumn, totalRows, totalColumns, numIncrement):
+    returnColumn = currentColumn + numIncrement
     if returnColumn >= totalColumns:
         returnRow = currentRow + 1
         returnColumn = returnColumn - totalColumns
@@ -492,13 +543,13 @@ print(Playfair_Decrypt("monarchy","cfsupmsa"))
 
 print(generatePlayfairKeyArray("Stefan"))
 
-row, column = incrementTwoRowColumn(0,0,2,2)
+row, column = incrementRowColumn(0,0,2,2,3)
 print(row)
 print(column)
 
 
 #Images:
-image = Image.open('baby_yoda.jpeg')
+image = Image.open('office.png')
 
 data = asarray(image)
 
