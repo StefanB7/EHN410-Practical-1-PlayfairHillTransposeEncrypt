@@ -10,7 +10,9 @@ K = None
  
 ############################ Main functions: ############################
 
+# TODO: key of encryption matrix return?
 # TODO: kan my code hanteer as jy 2 keer encryption na mekaar doen?
+# TODO: edge cases: as plain text kleiner is as 2 of 3 = gooi error en repeat plaintext sodat hy groot genoeg is
 # Hill_Encrypt (key : String, plaintext : String or Int ndarray)
 def Hill_Encrypt(key, plaintext):
     if len(key) == 4:
@@ -21,17 +23,32 @@ def Hill_Encrypt(key, plaintext):
     C = []
     K = __makeMatrix(key)
     
+    flag_small = False
+
     # text
     if type(plaintext) is not np.ndarray:
         P = __cleanString(plaintext)
+
+        # plaintext not long enough to be encrypted
+        while len(P) < m:
+            flag_small = True
+            P = np.concatenate((P,P), axis=None)
+        
+        if flag_small == True:
+            P = P[:m]
+            print("\nWARNING: plaintext length too short, plaintext was concatenated... (skryf dalk iets beter hier?)\n")
+
+        
+        int_l = len(P)
+        # if the plaintext length is not a multiple of m, concatenated the string
+        if len(P) != (m*(len(P)//m)):
+            print("\nWARNING: plaintext length too short, plaintext was concatenated... (skryf dalk iets beter hier?)\n")
+            P = np.concatenate((P,P), axis=None)
+            P = P[:m*(int_l//m)+m]
         
         for i in range(len(P) // m):
             C = np.concatenate((C, np.mod(np.dot(P[m*i:m*i+m], K), 26)), axis=None)
 
-        # letters wat nie ge-encrypt is nie word maar nou unencrypted agter aan gesit,
-        if len(P) != len(C):
-            C = np.concatenate((C,P[len(C)::]),axis=None)
-        
         return __arrayToString(C)
     # images
     else:
@@ -86,9 +103,6 @@ def Hill_Decrypt(key, ciphertext):
 
         for i in range(len(C) // m):
             P = np.concatenate((P, np.mod(np.dot(C[m*i:m*i+m], K_inv), 26)), axis=None)
-
-        if len(C) != len(P):
-            P = np.concatenate((P,C[len(P)::]),axis=None)
         
         return __arrayToString(P)
 
@@ -198,22 +212,39 @@ def __arrayToString(arrString):
 
 # TODO: hanteer nog case waar input nie die regte lengte is nie, maak exception, by fotos los net daai pixels uit maar gee nogsteeds die warning
 
-p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\sample.png')
-p_img = np.asarray(p_File)
+
+
+print(Hill_Encrypt("RRFVSVCCT","jannieensannie"))
+print(Hill_Decrypt("RRFVSVCCT","xxghjxnalnaaesj"))
+
+
+
+
+
+
+
+
+
+
+# p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office.png')
+# p_img = np.asarray(p_File)
+
+
+
 
 #print(p_img)
 
-print("___________________________________________")
+# print("___________________________________________")
 
-img_enc = Hill_Encrypt("RRFVSVCCT",p_img)
-print("half")
-img_dec = Hill_Decrypt("RRFVSVCCT",img_enc)
+# img_enc = Hill_Encrypt("RRFVSVCCT",p_img)
+# print("half")
+# img_dec = Hill_Decrypt("RRFVSVCCT",img_enc)
 
 #print((Image.fromarray(img_dec.astype(np.uint8))).size)
 
 
-Image.fromarray(img_enc.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\sample_encrypted.png')
-Image.fromarray(img_dec.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\sample_decrypted.png')
+# Image.fromarray(img_enc.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office_encrypted.png')
+# Image.fromarray(img_dec.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office_decrypted.png')
 
 #print(p_img)
 
