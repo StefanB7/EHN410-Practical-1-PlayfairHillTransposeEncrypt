@@ -179,7 +179,19 @@ def Playfair_Encrypt(key, plaintext):
                 if plainTextCopy[rowLeast][columnLeast][layerLeast] == leastValue:
                     plainTextCopy[rowLeast][columnLeast][layerLeast] += 1
                 rowLeast, columnLeast, layerLeast = incrementLayerColumnRow(rowLeast, columnLeast, layerLeast, numRows, numColumns, numLayers, 1)
-                
+
+            # #Add 128 to each 2nd element, to ensure encrypted values are not close to their original values:
+            index2nd = 0
+
+            row2nd = 0
+            column2nd = 0
+            layer2nd = 0
+            while row2nd < numRows:
+                if not(index2nd % 2 == 0):  #Odd values
+                    plainTextCopy[row2nd][column2nd][layer2nd] = (plainTextCopy[row2nd][column2nd][layer2nd] + 180) % 256
+                row2nd, column2nd, layer2nd = incrementLayerColumnRow(row2nd, column2nd, layer2nd, numRows, numColumns, numLayers, 1)
+                index2nd += 1
+
             #Encryption algorithm:
             diagramIndexRowFirst = 0
             diagramIndexColumnFirst = 0
@@ -612,7 +624,8 @@ def generatePlayfairKeyArray(characterKey):
     keyMatrix = np.empty((16, 16), dtype='u1')
     alreadyIn = []
     #Iterators:
-    row = 0
+    diagonal = 15
+    row = 15
     column = 0
     for character in characterKey:
         characterNum = toNumber(character)
@@ -622,23 +635,43 @@ def generatePlayfairKeyArray(characterKey):
             alreadyIn.append(characterNum)
 
             #Update the matrix indices
-            column += 1
-            if (column >= 16):
-                column = 0
+            if diagonal > 0:
+                column += 1
                 row += 1
+                if (row >= 16):
+                    column = 0
+                    diagonal -= 1
+                    row = diagonal
+            else:
+                column += 1
+                row += 1
+                if (column >= 16):
+                    row = 0
+                    diagonal -= 1
+                    column = abs(diagonal)
 
     #Fill in the rest of the key matrix with the remaining values up to 255:
     index = 0
-    while (row < 16):
+    while (index <= 255):
         if not(index in alreadyIn):
             keyMatrix[row][column] = index
             alreadyIn.append(index)
 
             #Update the matrix indices
-            column += 1
-            if (column >= 16):
-                column = 0
+            if diagonal > 0:
+                column += 1
                 row += 1
+                if (row >= 16):
+                    column = 0
+                    diagonal -= 1
+                    row = diagonal
+            else:
+                column += 1
+                row += 1
+                if (column >= 16):
+                    row = 0
+                    diagonal -= 1
+                    column = abs(diagonal)
 
         #Test next value
         index += 1
