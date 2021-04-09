@@ -515,80 +515,59 @@ def generatePlayfairKeyAlpha(characterKey):
 
 def generatePlayfairKeyArray(characterKey):
     #Generate the key
+    keyMatrix = np.zeros((16, 16), 'u1')
 
-    diagonals = 0
-
-    characterKey = characterKey.lower()
-
-    keyMatrix = np.empty((16, 16), dtype='u1')
-    alreadyIn = []
-    #Iterators:
-    diagonal = 15
-    if diagonals == 1:
-        row = 15
-    else:
-        row = 0
-    column = 0
+    #Get value indexes of the characterKey:
+    keyList = []
     for character in characterKey:
-        characterNum = toNumber(character)
+        keyList.append(toNumber(character))
 
-        if not(characterNum in alreadyIn):
-            keyMatrix[row][column] = characterNum
-            alreadyIn.append(characterNum)
+    permutations = [-1]*256
 
-            #Update the matrix indices
-            if diagonals == 1:
-                if diagonal > 0:
-                    column += 1
-                    row += 1
-                    if (row >= 16):
-                        column = 0
-                        diagonal -= 1
-                        row = diagonal
-                else:
-                    column += 1
-                    row += 1
-                    if (column >= 16):
-                        row = 0
-                        diagonal -= 1
-                        column = abs(diagonal)
-            else:
-                column += 1
-                if column >= 16:
-                    row += 1
-                    column = 0
+    indexInKey = 0
 
-    #Fill in the rest of the key matrix with the remaining values up to 255:
-    index = 0
-    while (index <= 255):
-        if not(index in alreadyIn):
-            keyMatrix[row][column] = index
-            alreadyIn.append(index)
+    for indexPermutation in range(256):
+        positionPermutation = (indexPermutation + (keyList[indexInKey] * 9)) % 256
+        indexInKey = (indexInKey+1) % len(characterKey)
 
-            #Update the matrix indices
-            if diagonals == 1:
-                if diagonal > 0:
-                    column += 1
-                    row += 1
-                    if (row >= 16):
-                        column = 0
-                        diagonal -= 1
-                        row = diagonal
-                else:
-                    column += 1
-                    row += 1
-                    if (column >= 16):
-                        row = 0
-                        diagonal -= 1
-                        column = abs(diagonal)
-            else:
-                column += 1
-                if column >= 16:
-                    row += 1
-                    column = 0
+        #If the position is available:
+        if permutations[positionPermutation] == -1:
+            #Add the value to the position:
+            permutations[positionPermutation] = indexPermutation
+        else:
+            #The position is not available search for an available position after this position:
+            indexSearch = (positionPermutation + 1) % 256
+            bPositionFound = False
+            while not(bPositionFound):
+                if permutations[indexSearch] == -1:
+                    bPositionFound = True
+                    permutations[indexSearch] = indexPermutation
+                indexSearch = (indexSearch + 1) % 256
 
-        #Test next value
-        index += 1
+    #Populate the keyMatrix with the permutations, containing all values from 0 - 255:
+
+    diagonal = 15
+    row = 15
+    column = 0
+
+    for value in permutations:
+        keyMatrix[row][column] = value
+
+        if diagonal > 0:
+            column += 1
+            row += 1
+            if (row >= 16):
+                column = 0
+                diagonal -= 1
+                row = diagonal
+        else:
+            column += 1
+            row += 1
+            if (column >= 16):
+                row = 0
+                diagonal -= 1
+                column = abs(diagonal)
+
 
     return keyMatrix
 
@@ -601,25 +580,28 @@ def generatePlayfairKeyArray(characterKey):
 
 
 
-Playfair_Encrypt("Hello","Mamma")
-print(cleanInput("Hi!, //@@ Hoe gaan dit vandag met jou?"))
 
-print(toNumber('a'))
 
-print(generatePlayfairKeyAlpha("monarchy"))
 
-print(Playfair_Encrypt("monarchy","Helloi"))
-
-print(Playfair_Decrypt("monarchy","cfsupmsa"))
-
+# Playfair_Encrypt("Hello","Mamma")
+# print(cleanInput("Hi!, //@@ Hoe gaan dit vandag met jou?"))
+#
+# print(toNumber('a'))
+#
+# print(generatePlayfairKeyAlpha("monarchy"))
+#
+# print(Playfair_Encrypt("monarchy","Helloi"))
+#
+# print(Playfair_Decrypt("monarchy","cfsupmsa"))
+#
 print(generatePlayfairKeyArray("Stefan"))
-
-row, column = incrementRowColumn(0,0,2,2,3)
-print(row)
-print(column)
-
-
-#Images:
+#
+# row, column = incrementRowColumn(0,0,2,2,3)
+# print(row)
+# print(column)
+#
+#
+# #Images:
 image = Image.open('office.png')
 
 data = asarray(image)
