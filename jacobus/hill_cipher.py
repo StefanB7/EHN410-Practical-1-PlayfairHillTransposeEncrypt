@@ -1,6 +1,10 @@
 # TODO: moet ek error goed maak indien inputs verkeerd is?
 # TODO: sit error code goed in exception
 # TODO: kyk na array se formating orals (int, float, double ens)
+# TODO: Eerder herhaal as net uitlos hkm? want die laaste letters van n woord of die laste ry pixels van n foto kan die foto weg gee (fail-safe method)
+# ma kan die nie regitg met fotos doen nie want die moet seker dimensions he... en by fotos sal dit max 2 pixels wees
+
+# hill cipher kan nie regtig een kleurig goed doen nie?
 
 from PIL import Image
 import numpy as np
@@ -63,13 +67,45 @@ def Hill_Encrypt(key, plaintext):
         g_enc = []
         b_enc = []
 
+        flag_small_r = False
+        flag_small_g = False
+        flag_small_b = False
+
+        # if not enough pixels to be encrypted
+        while len(r_channel) < m:
+            flag_small_r = True
+            r_channel = np.concatenate((r_channel,r_channel), axis=None)
+        
+        if flag_small_r == True:
+            r_channel = r_channel[:m]
+            print("\nWARNING: Not enough pixels, image was contactednated... (skryf dalk iets beter hier?)\n")
+        
+        while len(g_channel) < m:
+            flag_small_g = True
+            g_channel = np.concatenate((g_channel,g_channel), axis=None)
+        
+        if flag_small_g == True:
+            g_channel = g_channel[:m]
+            print("\nWARNING: Not enough pixels, image was contactednated... (skryf dalk iets beter hier?)\n")
+        
+        while len(b_channel) < m:
+            flag_small_b = True
+            b_channel = np.concatenate((b_channel,b_channel), axis=None)
+        
+        if flag_small_b == True:
+            b_channel = b_channel[:m]
+            print("\nWARNING: Not enough pixels, image was contactednated... (skryf dalk iets beter hier?)\n")
+    
+
         for i in range(len(r_channel) // m):
             r_enc = np.concatenate((r_enc,np.dot(r_channel[m*i:m*i+m], K)), axis=None)
         for j in range(len(g_channel) // m):
             g_enc = np.concatenate((g_enc,np.dot(g_channel[m*j:m*j+m], K)), axis=None)
-
         for k in range(len(b_channel) // m):
             b_enc = np.concatenate((b_enc,np.dot(b_channel[m*k:m*k+m], K)), axis=None)
+
+
+
 
         # letters wat nie ge-encrypt is nie word maar nou unencrypted agter aan gesit,
         if len(r_channel) != len(r_enc):
@@ -214,37 +250,24 @@ def __arrayToString(arrString):
 
 
 
-print(Hill_Encrypt("RRFVSVCCT","jannieensannie"))
-print(Hill_Decrypt("RRFVSVCCT","xxghjxnalnaaesj"))
+# print(Hill_Encrypt("RRFVSVCCT","jannieensannie"))
+# print(Hill_Decrypt("RRFVSVCCT","xxghjxnalnaaesj"))
 
-
-
-
-
-
-
-
-
-
-# p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office.png')
-# p_img = np.asarray(p_File)
-
-
-
+p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\o_blue.png')
+p_img = np.asarray(p_File)
 
 #print(p_img)
 
-# print("___________________________________________")
+print("___________________________________________")
 
-# img_enc = Hill_Encrypt("RRFVSVCCT",p_img)
-# print("half")
-# img_dec = Hill_Decrypt("RRFVSVCCT",img_enc)
+img_enc = Hill_Encrypt("RRFVSVCCT",p_img)
+print("half")
+img_dec = Hill_Decrypt("RRFVSVCCT",img_enc)
 
 #print((Image.fromarray(img_dec.astype(np.uint8))).size)
 
-
-# Image.fromarray(img_enc.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office_encrypted.png')
-# Image.fromarray(img_dec.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\office_decrypted.png')
+Image.fromarray(img_enc.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\o_blue_encrypted.png')
+Image.fromarray(img_dec.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\o_blue_decrypted.png')
 
 #print(p_img)
 
