@@ -146,74 +146,65 @@ def Playfair_Encrypt(key, plaintext):
         #TODO:Check the incoming array's dimentions
 
         #Ciphertext variable:
-        cipherText = np.empty((numRows, numColumns, numLayers), dtype='u1')
-
-        #Iterate over all the layers except the Alpha Layer:
-        for layer in range(numLayers):
+        cipherText = np.zeros((numRows, numColumns, numLayers), dtype='u1')
+        
+        #For the case when layers are 3:
+        if numLayers == 3:
+            
             #Calculate the least probable pixel value for the given layer:
             leastValuesCount = [0] * 256
             columnLeast = 0
             rowLeast = 0
+            layerLeast = 0
             
             while rowLeast < numRows:
-                leastValuesCount[plainTextCopy[rowLeast][columnLeast][layer]] += 1
-                rowLeast, columnLeast = incrementRowColumn(rowLeast,columnLeast,numRows, numColumns, 1)
-            
-            #The value that occurs the least is assigned the placeholder
+                leastValuesCount[plainTextCopy[rowLeast][columnLeast][layerLeast]] += 1
+                rowLeast, columnLeast, layerLeast = incrementLayerColumnRow(rowLeast, columnLeast, layerLeast, numRows, numColumns, numLayers, 1)
+                
+            #255 should not be chosen as it does not have a +1:
+            leastValuesCount[255] = max(leastValuesCount)
+                
+            #The value that occurs the least will be assigned the placeholder:
             leastValue = leastValuesCount.index(min(leastValuesCount))
             
-            #The top left pixel stores the leastValue element:
-            if not(numLayers == 1):
-                plainTextCopy[0][0][0] = leastValue
-            else:
-                plainTextCopy[0][0] = leastValue
+            #Assign the red value of the first pixel to the leastValue:
+            plainTextCopy[0][0][0] = leastValue
                 
-            #Change all the leastvalue occurrences in the plaintext to be one more:
-            columnLeast = 1 #Skip the first element
+            #Go through the entire matrix, incrementing the least value:
+            columnLeast = 0
             rowLeast = 0
+            layerLeast = 1  #Skip the first element (where it is stored)
             
             while rowLeast < numRows:
-                if numLayers > 1:
-                    if (plainTextCopy[rowLeast][columnLeast][layer] == leastValue):
-                        if leastValue < 255:
-                            plainTextCopy[rowLeast][columnLeast][layer] = leastValue + 1
-                        else:
-                            plainTextCopy[rowLeast][columnLeast][layer] = leastValue - 1
-                else:
-                    if (plainTextCopy[rowLeast][columnLeast] == leastValue):
-                        if leastValue < 255:
-                            plainTextCopy[rowLeast][columnLeast] = leastValue + 1
-                        else:
-                            plainTextCopy[rowLeast][columnLeast] = leastValue - 1
-
-                rowLeast, columnLeast = incrementRowColumn(rowLeast, columnLeast, numRows, numColumns, 1)
-                            
-            
-            #The Playfair encryption algorithm:                           
-            
-            
-            #Variables keeping the indices of the current diagram elements:
+                if plainTextCopy[rowLeast][columnLeast][layerLeast] == leastValue:
+                    plainTextCopy[rowLeast][columnLeast][layerLeast] += 1
+                rowLeast, columnLeast, layerLeast = incrementLayerColumnRow(rowLeast, columnLeast, layerLeast, numRows, numColumns, numLayers, 1)
+                
+            #Encryption algorithm:
             diagramIndexRowFirst = 0
             diagramIndexColumnFirst = 0
+            diagramLayerFirst = 0
 
             diagramIndexRowSecond = 0
-            diagramIndexColumnSecond = 1
-
+            diagramIndexColumnSecond = 0
+            diagramLayerSecond = 1
+        
+            #Iterate over all the diagrams:
             while diagramIndexRowSecond < numRows:
-                valueFirst = plainTextCopy[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
-                valueSecond = plainTextCopy[diagramIndexRowSecond][diagramIndexColumnSecond][layer]
+                valueFirst = plainTextCopy[diagramIndexRowFirst][diagramIndexColumnFirst][diagramLayerFirst]
+                valueSecond = plainTextCopy[diagramIndexRowSecond][diagramIndexColumnSecond][diagramLayerSecond]
                 
                 #If the values are the same, replace the second value with the least occurring value (placeholder, calculated above):
                 if (valueFirst == valueSecond):
                     valueSecond = leastValue
-
+                    
                 # Row and column where the first letter is found in the keyMatrix
                 rowF = 0
                 columnF = 0
                 # Row and column where the second letter is found in the keyMatrix
                 rowS = 0
                 columnS = 0
-
+            
                 #Search for the first and second values of the diagram in the key matrix:
                 bFoundFirst = False
                 bFoundSecond = False
@@ -234,36 +225,135 @@ def Playfair_Encrypt(key, plaintext):
                     if (columnSearch >= 16):
                         columnSearch = 0
                         rowSearch += 1
-
+                        
                 # The value's positions in the key matrix have been obtained
 
                 # get the two ciphertext characters corresponding to the diagram:
-
+                
                 # If the two characters are in the same row of the key matrix:
                 if (rowF == rowS):
                     # add to the ciphertext the characters to the right in the key matrix
-                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][(columnF + 1) % 16]
-                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[rowS][(columnS + 1) % 16]
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][diagramLayerFirst] = keyMatrix[rowF][(columnF + 1) % 16]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][diagramLayerSecond] = keyMatrix[rowS][(columnS + 1) % 16]
 
                 # If the two characters are in the same column of the key matrix:
                 elif (columnF == columnS):
                     # add to the ciphertext the characters to the bottom in the key matrix
-                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[(rowF+1)%16][columnF]
-                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[(rowS+1)%16][columnS]
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][diagramLayerFirst] = keyMatrix[(rowF+1)%16][columnF]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][diagramLayerSecond] = keyMatrix[(rowS+1)%16][columnS]
                 else:
                     # add to the ciphertext the character in the same row, but in its partner's column:
-                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][columnS]
-                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[rowS][columnF]
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][diagramLayerFirst] = keyMatrix[rowF][columnS]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][diagramLayerSecond] = keyMatrix[rowS][columnF]
 
-                diagramIndexRowFirst, diagramIndexColumnFirst = incrementRowColumn(diagramIndexRowFirst,diagramIndexColumnFirst,numRows,numColumns,2)
-                diagramIndexRowSecond, diagramIndexColumnSecond = incrementRowColumn(diagramIndexRowSecond,diagramIndexColumnSecond,numRows,numColumns,2)
+                diagramIndexRowFirst, diagramIndexColumnFirst, diagramLayerFirst = incrementLayerColumnRow(diagramIndexRowFirst,diagramIndexColumnFirst,diagramLayerFirst,numRows,numColumns,numLayers,2)
+                diagramIndexRowSecond, diagramIndexColumnSecond, diagramLayerSecond = incrementLayerColumnRow(diagramIndexRowSecond,diagramIndexColumnSecond,diagramLayerSecond,numRows,numColumns,numLayers,2)
 
-        #Handle the case when the Alpha layer is included in the array:
-        if (numLayers >= 4):
-            #Copy the alpha layer to the ciphertext array:
-            for rowCopy in range(numRows):
-                for columnCopy in range(numColumns):
-                    cipherText[rowCopy][columnCopy][4] = plaintext[rowCopy][columnCopy][4]
+        
+            return cipherText
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+
 
         return cipherText
 
@@ -281,6 +371,40 @@ def incrementRowColumn(currentRow, currentColumn, totalRows, totalColumns, numIn
         returnRow = currentRow
 
     return returnRow, returnColumn
+
+def incrementLayerColumnRow(currentRow,currentColumn,currentLayer,totalRows,totalColumns,totalLayers,numIncrement):
+    returnRow = currentRow
+    returnColumn = currentColumn    
+    returnLayer = currentLayer + numIncrement
+    if returnLayer >= totalLayers:
+        returnLayer = returnLayer - totalLayers
+        returnColumn = currentColumn + 1
+        if returnColumn >= totalColumns:
+            returnColumn = returnColumn - totalColumns
+            returnRow = currentRow + 1
+            
+    return returnRow, returnColumn, returnLayer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
