@@ -708,4 +708,12 @@ data = asarray(image)
 
 dataBack = Playfair_Encrypt("Stefan",data)
 
-image2 = Image.fromarray(dataBack).save("encypted.jpeg")
+image2 = Image.fromarray(dataBack).save("encrypted.png")
+
+imageEncrypted = Image.open('encrypted.png')
+
+dataEncrypted = asarray(imageEncrypted)
+
+dataBack = Playfair_Decrypt("Stefan",dataEncrypted)
+
+image2 = Image.fromarray(dataBack).save("decypted.jpeg")
