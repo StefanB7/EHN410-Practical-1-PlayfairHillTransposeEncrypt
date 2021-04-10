@@ -1,3 +1,5 @@
+#TODO: Vra oor die datatipes
+
 #EHN 410 - Practical 1 - 2021
 #Playfair encryption and decryption
 #Group 7
@@ -9,7 +11,10 @@ import string
 from PIL import Image
 from numpy import asarray
 
+#Variable storing the current key matrix
 playfairKey = []
+
+############################ Main Functions: ##########################
 
 #Playfair encryption algorithm
 def Playfair_Encrypt(key, plaintext):
@@ -17,6 +22,9 @@ def Playfair_Encrypt(key, plaintext):
     if (len(key) > 24):
         raise Exception("Key is too long, number of key characters > 24")
     key = key.lower()
+
+
+    #### Plaintext Encoding ####
 
     #If the plaintext is a string to be encrypted:
     if (isinstance(plaintext,str)):
@@ -121,6 +129,9 @@ def Playfair_Encrypt(key, plaintext):
 
         return cipherText
 
+
+    #### Image Encoding ####
+
     #If the plaintext is an image (ndarray) that needs to be encrypted:
     if (isinstance(plaintext,np.ndarray)):
         #Copy the plaintext:
@@ -177,20 +188,6 @@ def Playfair_Encrypt(key, plaintext):
 
                 # Assign the red value of the first pixel to the leastValue:
                 plainTextCopy[0][0][layer] = leastValue
-
-                # #Increment each second value with 180:
-                # incIndex = 1
-                #
-                # columnInc = 0
-                # rowInc = 0
-                #
-                # #TODO: Kyk hierso as hy weer by leastValue uitkom, verkeerd
-                #
-                # while rowInc < numRows:
-                #     if ((incIndex % 2) == 0):
-                #         plainTextCopy[rowInc][columnInc][layer] = (plainTextCopy[rowInc][columnInc][layer] + 160) % 256
-                #     rowInc, columnInc = incrementRowColumn(rowInc, columnInc, numRows, numColumns, 1)
-                #     incIndex = incIndex + 1
 
                 # Encryption algorithm:
                 diagramIndexRowFirst = 0
@@ -270,58 +267,6 @@ def Playfair_Encrypt(key, plaintext):
 
 
 
-def incrementRowColumn(currentRow, currentColumn, totalRows, totalColumns, numIncrement):
-    returnColumn = currentColumn + numIncrement
-    if returnColumn >= totalColumns:
-        returnRow = currentRow + 1
-        returnColumn = returnColumn - totalColumns
-    else:
-        returnRow = currentRow
-
-    return returnRow, returnColumn
-
-def incrementLayerColumnRow(currentRow,currentColumn,currentLayer,totalRows,totalColumns,totalLayers,numIncrement):
-    returnRow = currentRow
-    returnColumn = currentColumn    
-    returnLayer = currentLayer + numIncrement
-    if returnLayer >= totalLayers:
-        returnLayer = returnLayer - totalLayers
-        returnColumn = currentColumn + 1
-        if returnColumn >= totalColumns:
-            returnColumn = returnColumn - totalColumns
-            returnRow = currentRow + 1
-            
-    return returnRow, returnColumn, returnLayer
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #Playfair decryption algorithm
 def Playfair_Decrypt(key, ciphertext):
     # Test if the key is < 24 characters
@@ -329,6 +274,8 @@ def Playfair_Decrypt(key, ciphertext):
         raise Exception("Key is too long, number of key characters > 24")
     key = key.lower()
 
+
+    #### Plaintext Decoding ####
 
     if (isinstance(ciphertext, str)):
 
@@ -424,7 +371,7 @@ def Playfair_Decrypt(key, ciphertext):
         return plainText
 
 
-
+    #### Image Decoding ####
 
     #If the ciphertext is an image (ndarray) that needs to be decrypted:
     if (isinstance(ciphertext, np.ndarray)):
@@ -535,15 +482,11 @@ def Playfair_Decrypt(key, ciphertext):
             return plainText
 
 
+def Get_Playfair_Encryption_Matrix():
+    return playfairKey
 
 
-
-
-
-
-
-
-
+############################ Helper Functions: ##########################
 
 #Function cleans the input, removes any special characters (including spaces) and makes all letters lower case
 def cleanInput(input):
@@ -566,6 +509,16 @@ def cleanInput(input):
 
 def toNumber(letter):
     return ord(letter) - 97
+
+def incrementRowColumn(currentRow, currentColumn, totalRows, totalColumns, numIncrement):
+    returnColumn = currentColumn + numIncrement
+    if returnColumn >= totalColumns:
+        returnRow = currentRow + 1
+        returnColumn = returnColumn - totalColumns
+    else:
+        returnRow = currentRow
+
+    return returnRow, returnColumn
 
 def generatePlayfairKeyAlpha(characterKey):
     # Generate the key:
@@ -611,6 +564,9 @@ def generatePlayfairKeyAlpha(characterKey):
         #Go to next alphabet letter
         alphabetIndex += 1
 
+    #Store the result in the global playfair key
+    playfairKey = charKeyMatrix.copy()
+
     return charKeyMatrix
 
 def generatePlayfairKeyArray(characterKey):
@@ -645,7 +601,6 @@ def generatePlayfairKeyArray(characterKey):
                 indexSearch = (indexSearch + 1) % 256
 
     #Populate the keyMatrix with the permutations, containing all values from 0 - 255:
-
     diagonal = 15
     row = 15
     column = 0
@@ -668,6 +623,8 @@ def generatePlayfairKeyArray(characterKey):
                 diagonal -= 1
                 column = abs(diagonal)
 
+    #Store the result in the global playfair key
+    playfairKey = keyMatrix.copy()
 
     return keyMatrix
 
@@ -678,9 +635,7 @@ def generatePlayfairKeyArray(characterKey):
 
 
 
-
-
-
+############################ Testing: ##########################
 
 
 # Playfair_Encrypt("Hello","Mamma")
