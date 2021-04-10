@@ -141,7 +141,6 @@ def Playfair_Encrypt(key, plaintext):
         bAlphaLayer = False
         if (numLayers > 3):
             bAlphaLayer = True
-            numLayers = 3
             
         #TODO:Check the incoming array's dimentions
 
@@ -427,12 +426,113 @@ def Playfair_Decrypt(key, ciphertext):
 
 
 
+    #If the ciphertext is an image (ndarray) that needs to be decrypted:
+    if (isinstance(ciphertext, np.ndarray)):
+        # Copy the plaintext:
+        cipherTextCopy = ciphertext.copy()
 
+        # Get the encryption key matrix:
+        keyMatrix = generatePlayfairKeyArray(key)
 
+        # Check the plaintext's dimentions:
+        numRows = ciphertext.shape[0]
+        numColumns = ciphertext.shape[1]
+        if (ciphertext.ndim == 2):
+            numLayers = 1
+        else:
+            numLayers = ciphertext.shape[2]
 
-    #If the ciphertext is an image (ndarray) that needs to be encrypted:
-    if (isinstance(ciphertext,np.ndarray)):
-        print("Playfair Decrypt met ndarray ciphertext")
+        # Test if there is an AlphaLayer:
+        bAlphaLayer = False
+        if (numLayers > 3):
+            bAlphaLayer = True
+
+        # TODO:Check the incoming array's dimentions
+
+        # Ciphertext variable:
+        plainText = np.zeros((numRows, numColumns, numLayers), dtype='u1')
+
+        # For the case when layers are 3:
+        if numLayers == 3:
+
+            for layer in range(numLayers):
+
+                #Get the layer's least occuring value (used as the filler symbol):
+                leastValue = -1
+
+                # Decryption algorithm:
+                diagramIndexRowFirst = 0
+                diagramIndexColumnFirst = 0
+
+                diagramIndexRowSecond = 0
+                diagramIndexColumnSecond = 1
+
+                # Iterate over all the diagrams:
+                while diagramIndexRowSecond < numRows:
+                    valueFirst = cipherTextCopy[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
+                    valueSecond = cipherTextCopy[diagramIndexRowSecond][diagramIndexColumnSecond][layer]
+
+                    # Row and column where the first letter is found in the keyMatrix
+                    rowF = 0
+                    columnF = 0
+                    # Row and column where the second letter is found in the keyMatrix
+                    rowS = 0
+                    columnS = 0
+
+                    # Search for the first and second values of the diagram in the key matrix:
+                    bFoundFirst = False
+                    bFoundSecond = False
+                    rowSearch = 0
+                    columnSearch = 0
+                    while (rowSearch < 16) and (not (bFoundFirst) or not (bFoundSecond)):
+                        if (valueFirst == keyMatrix[rowSearch][columnSearch]):
+                            rowF = rowSearch
+                            columnF = columnSearch
+                            bFoundFirst = True
+                        if (valueSecond == keyMatrix[rowSearch][columnSearch]):
+                            rowS = rowSearch
+                            columnS = columnSearch
+                            bFoundSecond = True
+
+                        # Update the matrix indices
+                        columnSearch += 1
+                        if (columnSearch >= 16):
+                            columnSearch = 0
+                            rowSearch += 1
+
+                    # The value's positions in the key matrix have been obtained
+
+                    # get the two plaintext characters corresponding to the diagram:
+
+                    # If the two characters are in the same row of the key matrix:
+                    if (rowF == rowS):
+                        # add to the ciphertext the characters to the right in the key matrix
+                        plainText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][(columnF - 1) % 16]
+                        plainText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[rowS][(columnS - 1) % 16]
+
+                    # If the two characters are in the same column of the key matrix:
+                    elif (columnF == columnS):
+                        # add to the ciphertext the characters to the bottom in the key matrix
+                        plainText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[(rowF - 1) % 16][columnF]
+                        plainText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[(rowS - 1) % 16][columnS]
+                    else:
+                        # add to the ciphertext the character in the same row, but in its partner's column:
+                        plainText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][columnS]
+                        plainText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = keyMatrix[rowS][columnF]
+
+                    #If the first element was just decrypted, save it as the least occurring (filler) symbol:
+                    if (diagramIndexRowFirst == 0) and (diagramIndexColumnFirst == 0):
+                        leastValue = plainText[0][0][layer]
+
+                    #If the second value in the diagram is equal to the filler symbol, copy the first element in the diagram to the second element in the diagram:
+                    if plainText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] == leastValue:
+                        plainText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = plainText[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
+
+                    #Increment the diagram indexes (go to the next diagram)
+                    diagramIndexRowFirst, diagramIndexColumnFirst = incrementRowColumn(diagramIndexRowFirst,diagramIndexColumnFirst, numRows,numColumns, 2)
+                    diagramIndexRowSecond, diagramIndexColumnSecond = incrementRowColumn(diagramIndexRowSecond,diagramIndexColumnSecond,numRows, numColumns, 2)
+
+            return plainText
 
 
 
