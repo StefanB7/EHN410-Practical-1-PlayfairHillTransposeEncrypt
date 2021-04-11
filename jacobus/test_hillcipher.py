@@ -1,124 +1,95 @@
+#### !!!!! verander hill_cipher nog na die final combination script !!!!!
+# TODO: daai matrix return function???????
 
-# # print(Hill_Encrypt("RRFVSVCCT","jannieensannie"))
-# # print(Hill_Decrypt("RRFVSVCCT","xxghjxnalnaaesj"))
+from PIL import Image
+import numpy as np
+import importlib
+verander_die = importlib.import_module("hill_cipher")
 
-# p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\o_blue.png')
-# p_img = np.asarray(p_File)
+txtENC = ""
+txtDEC = ""
 
-# #print(p_img)
+imgENC = None
+imgDEC = None
 
-# print("___________________________________________")
+# Test plaintext that is too small 
+print("\n____________________________________________________")
+print("\nTest (1/7): Plaintext that is too small")
+print("\nInput:")
+print("Plaintext: a")
+print("Key: RRFVSVCCT")
+print("\nOutput:")
+txtENC = verander_die.Hill_Encrypt("RRFVSVCCT","a")
+print("Encrypted text: ",txtENC)
+txtDEC = verander_die.Hill_Decrypt("RRFVSVCCT",txtENC)
+print("Decrypted text: ",txtDEC)
 
-# img_enc = Hill_Encrypt("RRFVSVCCT",p_img)
-# print("half")
-# img_dec = Hill_Decrypt("RRFVSVCCT",img_enc)
+# Test plaintext that is not the correct length
+print("\n____________________________________________________")
+print("\nTest (2/7): Plaintext that is not the correct length")
+print("\nInput:")
+print("Plaintext: jeep")
+print("Key: RRFVSVCCT")
+print("\nOutput:")
+txtENC = verander_die.Hill_Encrypt("RRFVSVCCT","jeep")
+print("Encrypted text: ",txtENC)
+txtDEC = verander_die.Hill_Decrypt("RRFVSVCCT",txtENC)
+print("Decrypted text: ",txtDEC)
 
-# #print((Image.fromarray(img_dec.astype(np.uint8))).size)
+# Test unsupported plaintext
+print("\n____________________________________________________")
+print("\nTest (3/7): Unsupported plaintext")
+print("\nInput:")
+print("Plaintext: The following symbols should not be encrypted: @,#,$,%,^,*,&,*,1,2,3,4.")
+print("Key: RRFVSVCCT")
+print("\nOutput:")
+txtENC = verander_die.Hill_Encrypt("RRFVSVCCT","The following symbols should not be encrypted: @,#,$,%,^,*,&,*,1,2,3,4.")
+print("Encrypted text: ",txtENC)
+txtDEC = verander_die.Hill_Decrypt("RRFVSVCCT",txtENC)
+print("Decrypted text: ",txtDEC)
 
-# Image.fromarray(img_enc.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\o_blue_encrypted.png')
-# Image.fromarray(img_dec.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\o_blue_decrypted.png')
+# Test a 2x2 key matrix
+print("\n____________________________________________________")
+print("\nTest (4/7): 2x2 key matrix")
+print("\nInput:")
+print("Plaintext: that's a fat cat")
+print("Key: DDCF")
+print("\nOutput:")
+txtENC = verander_die.Hill_Encrypt("DDCF","that's a fat cat")
+print("Encrypted text: ",txtENC)
+txtDEC = verander_die.Hill_Decrypt("DDCF",txtENC)
+print("Decrypted text: ",txtDEC)
 
-#print(p_img)
+# Test a 3x3 key matrix
+print("\n____________________________________________________")
+print("\nTest (5/7): 3x3 key matrix")
+print("\nInput:")
+print("Plaintext: that's a fat cat")
+print("Key: RRFVSVCCT")
+print("\nOutput:")
+txtENC = verander_die.Hill_Encrypt("RRFVSVCCT","that's a fat cat")
+print("Encrypted text: ",txtENC)
+txtDEC = verander_die.Hill_Decrypt("RRFVSVCCT",txtENC)
+print("Decrypted text: ",txtDEC)
 
-# extract 2D R,G,B arrays
-#print("R: ",p_img[:,:,0])
-# print("G: ",p_img[:,:,1])
-# print("B: ",p_img[:,:,2])
+# Test image that is not the correct length
+print("\n____________________________________________________")
+print("\nTest (6/7): Image that is not the correct size")
+p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images\office.png')
+p_img = np.asarray(p_File)
+imgENC = verander_die.Hill_Encrypt("RRFVSVCCT",p_img)
+Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images_test\office_enc_hill.png')
+imgDEC = verander_die.Hill_Decrypt("RRFVSVCCT",imgENC)
+Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images_test\office_dec_hill.png')
 
-# From 2D array to 1D array
-# r_channel = np.array(p_img[:,:,0]).reshape(1,p_img[:,:,0].shape[0]*p_img[:,:,0].shape[1])[0]
-# g_channel = np.array(p_img[:,:,1]).reshape(1,p_img[:,:,1].shape[0]*p_img[:,:,1].shape[1])[0]
-# b_channel = np.array(p_img[:,:,2]).reshape(1,p_img[:,:,2].shape[0]*p_img[:,:,2].shape[1])[0]
-
-# r_channel = r_channel.reshape(p_img[:,:,0].shape[0],p_img[:,:,0].shape[1])
-# g_channel = g_channel.reshape(p_img[:,:,1].shape[0],p_img[:,:,1].shape[1])
-# b_channel = b_channel.reshape(p_img[:,:,2].shape[0],p_img[:,:,2].shape[1])
-
-# print(type(p_File))
-
-# # summarize image details
-# print(p_File.mode)
-# print(p_File.size)
-
-
-# print("_______________________________")
-
-
-# print(np.dstack((r_channel,g_channel,b_channel)))
-
-# Img2 = Image.fromarray(np.dstack((r_channel,g_channel,b_channel)))
-# print(type(Img2))
-
-# # summarize image details
-# print(Img2.mode)
-# print(Img2.size)
-
-# Img2.save('office_out.png')
-
-
-#print(r_channel)
-# print(g_channel)
-# print(b_channel)
-
-# a = np.array([[1,2,3,4,5,6,7,8],[1,2,3,4,5,6,7,8],[1,2,3,4,5,6,7,8]])
-
-# b = np.array([[11,12,13,14,15,16,17,18],[11,12,13,14,15,16,17,18],[11,12,13,14,15,16,17,18]])
-
-# c = np.array([[21,22,23,24,25,26,27,28],[21,22,23,24,25,26,27,28],[21,22,23,24,25,26,27,28]])
-
-# print(np.dstack((a,b,c)))
-
-
-
-# print(Hill_Encrypt("RRFVSVCCT",a))
-# print(Hill_Decrypt("RRFVSVCCT",np.array([65,59,104,10175,9413,11416,6145,5812,3821, 9])))
-
-
-
-# a = [[2, 3, 3], [4, 5, 6], [7, 8, 9]]
-# b = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-# c = [[2, 3], [1, 9]]
-
-# A = [[5,8],[17,3]]
-# K = [[17,17,5],[21,18,21],[2,2,19]]
-
-# w = [[6,24,1],[13,16,10],[20,17,15]]
-
-# wk = [[3,3],[2,5]]
-
-# print(__inverse(2,wk))
-
-#print(__determinant(3,K))
-
-# print(Hill_Encrypt("RRFVSVCCT","paymoremoneyaa"))
-# print(Hill_Decrypt("RRFVSVCCT","rrlmwbkaspdhaa"))
-
-# print(Hill_Encrypt("DDCF","HELP"))
-# print(Hill_Decrypt("DDCF","dple"))
-
-# print(Hill_Encrypt("DDCF","THISWATERISVNICE"))
-# print(Hill_Encrypt("LUdd","toikoonzpnsddboa"))
-# print(Hill_Decrypt("LUdd","rgoiokkxwbzfklyu"))
-# print(Hill_Decrypt("DDCF","toikoonzpnsddboa"))
-
-# print(Hill_Encrypt("alphabeta","wearesafe"))
-# print(Hill_Decrypt("alphabeta","ciwwjzzyf"))
-
-# DDCA???
-
-#print(Hill_Encrypt("RRFVSVCCT","paymoremoney"))
-
-# print(Hill_Encrypt("DCIF","hillcipher"))
-# print(Hill_Decrypt("DCIF","hcrzssxnsp"))
-
-# print(Hill_Encrypt("DCIZ","hillcipher"))
-# print(Hill_Decrypt("DCIZ","hgrlswxxsr"))
-
-# print(Hill_Encrypt("DDCF","hillcipher"))
-# print(Hill_Decrypt("DDCF","ljdkwuhcut"))
-
-
-class dieiscool(Exception):
-    pass
-
-raise dieiscool("die is n custom error")
+# # Test a when key matrix does not have a modular multiplicative inverse
+# print("\n____________________________________________________")
+# print("\nTest (7/7): When key matrix does not have a modular multiplicative inverse")
+# print("\nInput:")
+# print("Plaintext: that's a fat cat")
+# print("Key: Aristocat")
+# print("\nOutput:")
+# txtENC = verander_die.Hill_Encrypt("catamaran","that's a fat cat")
+# print("Encrypted text: ",txtENC)
+# txtDEC = verander_die.Hill_Decrypt("catamaran",txtENC)
+# print("Decrypted text: ",txtDEC)

@@ -109,9 +109,14 @@ def Hill_Encrypt(key, plaintext):
             b_enc = np.concatenate((b_enc,b_channel[len(b_enc)::]),axis=None)
 
         # reshape RGB channels into matrix form
-        r_enc = r_enc.reshape(plaintext[:,:,0].shape[0],plaintext[:,:,0].shape[1])
-        g_enc = g_enc.reshape(plaintext[:,:,1].shape[0],plaintext[:,:,1].shape[1])
-        b_enc = b_enc.reshape(plaintext[:,:,2].shape[0],plaintext[:,:,2].shape[1])
+        if flag_small_r == True:
+            r_enc = r_enc.reshape(m,1)
+            g_enc = g_enc.reshape(m,1)
+            b_enc = b_enc.reshape(m,1)
+        else:
+            r_enc = r_enc.reshape(plaintext[:,:,0].shape[0],plaintext[:,:,0].shape[1])
+            g_enc = g_enc.reshape(plaintext[:,:,1].shape[0],plaintext[:,:,1].shape[1])
+            b_enc = b_enc.reshape(plaintext[:,:,2].shape[0],plaintext[:,:,2].shape[1])
 
         # Combine RGB matrices into one array
         return np.dstack((r_enc,g_enc,b_enc))
