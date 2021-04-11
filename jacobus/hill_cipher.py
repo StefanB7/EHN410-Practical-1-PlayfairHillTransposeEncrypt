@@ -97,17 +97,6 @@ def Hill_Encrypt(key, plaintext):
         for k in range(len(b_channel) // m):
             b_enc = np.concatenate((b_enc,np.mod(np.dot(b_channel[m*k:m*k+m], K),256)), axis=None)
 
-        # for i in range(len(r_channel) // m):
-        #     r_enc = np.concatenate((r_enc,np.dot(r_channel[m*i:m*i+m], K)), axis=None)
-        # for j in range(len(g_channel) // m):
-        #     g_enc = np.concatenate((g_enc,np.dot(g_channel[m*j:m*j+m], K)), axis=None)
-        # for k in range(len(b_channel) // m):
-        #     b_enc = np.concatenate((b_enc,np.dot(b_channel[m*k:m*k+m], K)), axis=None)
-
-        # print("R-max: ",np.max(r_enc))
-        # print("B-max: ",np.max(b_enc))
-        # print("G-max: ",np.max(r_enc))
-
         # Pixels that were not encrypted are attached without encryption
         if len(r_channel) != len(r_enc):
             print("\nWARNING: Not enough pixels, some (less than 3) image pixels were not encrypted...\n")
@@ -175,13 +164,6 @@ def Hill_Decrypt(key, ciphertext):
         for k in range(len(b_channel) // m):
             b_dec = np.concatenate((b_dec,np.mod(np.dot(b_channel[m*k:m*k+m], K_inv),256)), axis=None)
 
-        # for i in range(len(r_channel) // m):
-        #     r_dec = np.concatenate((r_dec,np.dot(r_channel[m*i:m*i+m], K_inv)), axis=None)
-        # for j in range(len(g_channel) // m):
-        #     g_dec = np.concatenate((g_dec,np.dot(g_channel[m*j:m*j+m], K_inv)), axis=None)
-        # for k in range(len(b_channel) // m):
-        #     b_dec = np.concatenate((b_dec,np.dot(b_channel[m*k:m*k+m], K_inv)), axis=None)
-
         # Pixels that were not encrypted are attached without decryption 
         if len(r_channel) != len(r_dec):
             r_dec = np.concatenate((r_dec,r_channel[len(r_dec)::]),axis=None)
@@ -246,7 +228,7 @@ def __inverse(m, arrM, png):
     # image
     if png == True:
         det = __determinant(m, arrM)%256
-        det = __inverseModulo(det,True)#1/det
+        det = __inverseModulo(det,True)
     # text
     else:
         det = __determinant(m, arrM)%26
@@ -265,7 +247,7 @@ def __inverse(m, arrM, png):
             inv[i][j] = np.dot(((-1)**(i+j))*(det), det_Dij)
 
     if png == True:
-        return np.mod(inv,256)#inv
+        return np.mod(inv,256)
     else:
         return np.mod(inv,26)
 

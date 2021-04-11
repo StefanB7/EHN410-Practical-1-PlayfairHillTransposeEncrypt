@@ -1,3 +1,5 @@
+# TODO: ek dink ek moet die image goed uithaal...
+
 from PIL import Image
 import numpy as np
 import string
