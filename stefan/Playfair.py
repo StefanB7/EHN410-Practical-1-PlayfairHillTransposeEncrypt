@@ -34,6 +34,9 @@ def Playfair_Encrypt(key, plaintext):
         #Clean the plaintext
         plaintext = cleanInput(plaintext)
 
+        #Replace the j's with i's:
+        plaintext = plaintext.replace('j','i')
+
         #Go through the plaintext, adding x's where two characters are in the same diagram
         plaintextCorrected = ""
 
@@ -526,7 +529,7 @@ def generatePlayfairKeyAlpha(characterKey):
     characterKey = characterKey.lower()
 
     #Change all j's to i's in the key:
-    characterKey.replace('j','i')
+    characterKey = characterKey.replace('j','i')
 
     charKeyMatrix = np.empty((5, 5), dtype='U1')
     alreadyIn = []
@@ -642,6 +645,12 @@ def generatePlayfairKeyArray(characterKey):
 # print(cleanInput("Hi!, //@@ Hoe gaan dit vandag met jou?"))
 #
 # print(toNumber('a'))
+print(generatePlayfairKeyAlpha("StefanJacobus"))
+
+print(Playfair_Encrypt("StefanJacobus","thecunningquickbrownfoxjumpsoverthelazydogunderthewillowtree"))
+#
+print(Playfair_Decrypt("StefanJacobus","fdcgluicculhcorkqbviohwcdllenyapfdspbawhchlugtmagftdpvqntipaec"))
+
 #
 # print(generatePlayfairKeyAlpha("monarchy"))
 #
@@ -649,7 +658,7 @@ def generatePlayfairKeyArray(characterKey):
 #
 # print(Playfair_Decrypt("monarchy","cfsupmsa"))
 #
-print(generatePlayfairKeyArray("Stefan"))
+#print(generatePlayfairKeyArray("Stefan"))
 #
 # row, column = incrementRowColumn(0,0,2,2,3)
 # print(row)
@@ -657,18 +666,18 @@ print(generatePlayfairKeyArray("Stefan"))
 #
 #
 # #Images:
-image = Image.open('office.png')
-
-data = asarray(image)
-
-dataBack = Playfair_Encrypt("Stefan",data)
-
-image2 = Image.fromarray(dataBack).save("encrypted.png")
-
-imageEncrypted = Image.open('encrypted.png')
-
-dataEncrypted = asarray(imageEncrypted)
-
-dataBack = Playfair_Decrypt("Stefan",dataEncrypted)
-
-image2 = Image.fromarray(dataBack).save("decypted.jpeg")
+# image = Image.open('office.png')
+#
+# data = asarray(image)
+#
+# dataBack = Playfair_Encrypt("Stefan",data)
+#
+# image2 = Image.fromarray(dataBack).save("encrypted.png")
+#
+# imageEncrypted = Image.open('encrypted.png')
+#
+# dataEncrypted = asarray(imageEncrypted)
+#
+# dataBack = Playfair_Decrypt("Stefan",dataEncrypted)
+#
+# image2 = Image.fromarray(dataBack).save("decypted.jpeg")
