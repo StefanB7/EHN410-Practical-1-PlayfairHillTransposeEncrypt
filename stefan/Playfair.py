@@ -156,119 +156,121 @@ def Playfair_Encrypt(key, plaintext):
         bAlphaLayer = False
         if (numLayers > 3):
             bAlphaLayer = True
-            
-        #TODO:Check the incoming array's dimentions
+            numLayers = 3
+            alpha_layer = np.array(plaintext[:, :, 3])
 
         #Ciphertext variable:
-        cipherText = np.zeros((numRows, numColumns, numLayers), dtype='u1')
-        
-        #For the case when layers are 3:
-        if numLayers == 3:
+        if not(bAlphaLayer):
+            cipherText = np.zeros((numRows, numColumns, numLayers), dtype='u1')
+        else:
+            cipherText = np.zeros((numRows, numColumns, numLayers+1), dtype='u1')
 
-            for layer in range(numLayers):
-                # Calculate the least probable pixel value for the given layer:
-                leastValuesCount = [0] * 256
-                columnLeast = 0
-                rowLeast = 0
+        for layer in range(numLayers):
+            # Calculate the least probable pixel value for the given layer:
+            leastValuesCount = [0] * 256
+            columnLeast = 0
+            rowLeast = 0
 
-                while rowLeast < numRows:
-                    leastValuesCount[plainTextCopy[rowLeast][columnLeast][layer]] += 1
-                    rowLeast, columnLeast = incrementRowColumn(rowLeast, columnLeast, numRows, numColumns, 1)
+            while rowLeast < numRows:
+                leastValuesCount[plainTextCopy[rowLeast][columnLeast][layer]] += 1
+                rowLeast, columnLeast = incrementRowColumn(rowLeast, columnLeast, numRows, numColumns, 1)
 
-                # 255 should not be chosen as it does not have a +1:
-                leastValuesCount[255] = max(leastValuesCount)
+            # 255 should not be chosen as it does not have a +1:
+            leastValuesCount[255] = max(leastValuesCount)
 
-                # The value that occurs the least will be assigned the placeholder:
-                leastValue = leastValuesCount.index(min(leastValuesCount))
+            # The value that occurs the least will be assigned the placeholder:
+            leastValue = leastValuesCount.index(min(leastValuesCount))
 
-                # Go through the entire matrix, incrementing the least value:
-                columnLeast = 1
-                rowLeast = 0
+            # Go through the entire matrix, incrementing the least value:
+            columnLeast = 1
+            rowLeast = 0
 
-                while rowLeast < numRows:
-                    if plainTextCopy[rowLeast][columnLeast][layer] == leastValue:
-                        plainTextCopy[rowLeast][columnLeast][layer] += 1
-                    rowLeast, columnLeast = incrementRowColumn(rowLeast, columnLeast, numRows, numColumns, 1)
+            while rowLeast < numRows:
+                if plainTextCopy[rowLeast][columnLeast][layer] == leastValue:
+                    plainTextCopy[rowLeast][columnLeast][layer] += 1
+                rowLeast, columnLeast = incrementRowColumn(rowLeast, columnLeast, numRows, numColumns, 1)
 
-                # Assign the red value of the first pixel to the leastValue:
-                plainTextCopy[0][0][layer] = leastValue
+            # Assign the red value of the first pixel to the leastValue:
+            plainTextCopy[0][0][layer] = leastValue
 
-                # Encryption algorithm:
-                diagramIndexRowFirst = 0
-                diagramIndexColumnFirst = 0
+            # Encryption algorithm:
+            diagramIndexRowFirst = 0
+            diagramIndexColumnFirst = 0
 
-                diagramIndexRowSecond = 0
-                diagramIndexColumnSecond = 1
+            diagramIndexRowSecond = 0
+            diagramIndexColumnSecond = 1
 
-                # Iterate over all the diagrams:
-                while diagramIndexRowSecond < numRows:
-                    valueFirst = plainTextCopy[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
-                    valueSecond = plainTextCopy[diagramIndexRowSecond][diagramIndexColumnSecond][layer]
+            # Iterate over all the diagrams:
+            while diagramIndexRowSecond < numRows:
+                valueFirst = plainTextCopy[diagramIndexRowFirst][diagramIndexColumnFirst][layer]
+                valueSecond = plainTextCopy[diagramIndexRowSecond][diagramIndexColumnSecond][layer]
 
-                    # If the values are the same, replace the second value with the least occurring value (placeholder, calculated above):
-                    if (valueFirst == valueSecond):
-                        valueSecond = leastValue
+                # If the values are the same, replace the second value with the least occurring value (placeholder, calculated above):
+                if (valueFirst == valueSecond):
+                    valueSecond = leastValue
 
-                    # Row and column where the first letter is found in the keyMatrix
-                    rowF = 0
-                    columnF = 0
-                    # Row and column where the second letter is found in the keyMatrix
-                    rowS = 0
-                    columnS = 0
+                # Row and column where the first letter is found in the keyMatrix
+                rowF = 0
+                columnF = 0
+                # Row and column where the second letter is found in the keyMatrix
+                rowS = 0
+                columnS = 0
 
-                    # Search for the first and second values of the diagram in the key matrix:
-                    bFoundFirst = False
-                    bFoundSecond = False
-                    rowSearch = 0
-                    columnSearch = 0
-                    while (rowSearch < 16) and (not (bFoundFirst) or not (bFoundSecond)):
-                        if (valueFirst == keyMatrix[rowSearch][columnSearch]):
-                            rowF = rowSearch
-                            columnF = columnSearch
-                            bFoundFirst = True
-                        if (valueSecond == keyMatrix[rowSearch][columnSearch]):
-                            rowS = rowSearch
-                            columnS = columnSearch
-                            bFoundSecond = True
+                # Search for the first and second values of the diagram in the key matrix:
+                bFoundFirst = False
+                bFoundSecond = False
+                rowSearch = 0
+                columnSearch = 0
+                while (rowSearch < 16) and (not (bFoundFirst) or not (bFoundSecond)):
+                    if (valueFirst == keyMatrix[rowSearch][columnSearch]):
+                        rowF = rowSearch
+                        columnF = columnSearch
+                        bFoundFirst = True
+                    if (valueSecond == keyMatrix[rowSearch][columnSearch]):
+                        rowS = rowSearch
+                        columnS = columnSearch
+                        bFoundSecond = True
 
-                        # Update the matrix indices
-                        columnSearch += 1
-                        if (columnSearch >= 16):
-                            columnSearch = 0
-                            rowSearch += 1
+                    # Update the matrix indices
+                    columnSearch += 1
+                    if (columnSearch >= 16):
+                        columnSearch = 0
+                        rowSearch += 1
 
-                    # The value's positions in the key matrix have been obtained
+                # The value's positions in the key matrix have been obtained
 
-                    # get the two ciphertext characters corresponding to the diagram:
+                # get the two ciphertext characters corresponding to the diagram:
 
-                    # If the two characters are in the same row of the key matrix:
-                    if (rowF == rowS):
-                        # add to the ciphertext the characters to the right in the key matrix
-                        cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][
-                            (columnF + 1) % 16]
-                        cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = \
-                        keyMatrix[rowS][(columnS + 1) % 16]
+                # If the two characters are in the same row of the key matrix:
+                if (rowF == rowS):
+                    # add to the ciphertext the characters to the right in the key matrix
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][
+                        (columnF + 1) % 16]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = \
+                    keyMatrix[rowS][(columnS + 1) % 16]
 
-                    # If the two characters are in the same column of the key matrix:
-                    elif (columnF == columnS):
-                        # add to the ciphertext the characters to the bottom in the key matrix
-                        cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = \
-                        keyMatrix[(rowF + 1) % 16][columnF]
-                        cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = \
-                        keyMatrix[(rowS + 1) % 16][columnS]
-                    else:
-                        # add to the ciphertext the character in the same row, but in its partner's column:
-                        cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][
-                            columnS]
-                        cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = \
-                        keyMatrix[rowS][columnF]
+                # If the two characters are in the same column of the key matrix:
+                elif (columnF == columnS):
+                    # add to the ciphertext the characters to the bottom in the key matrix
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = \
+                    keyMatrix[(rowF + 1) % 16][columnF]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = \
+                    keyMatrix[(rowS + 1) % 16][columnS]
+                else:
+                    # add to the ciphertext the character in the same row, but in its partner's column:
+                    cipherText[diagramIndexRowFirst][diagramIndexColumnFirst][layer] = keyMatrix[rowF][
+                        columnS]
+                    cipherText[diagramIndexRowSecond][diagramIndexColumnSecond][layer] = \
+                    keyMatrix[rowS][columnF]
 
-                    diagramIndexRowFirst, diagramIndexColumnFirst = incrementRowColumn(diagramIndexRowFirst, diagramIndexColumnFirst, numRows, numColumns, 2)
-                    diagramIndexRowSecond, diagramIndexColumnSecond = incrementRowColumn(diagramIndexRowSecond, diagramIndexColumnSecond, numRows, numColumns, 2)
+                diagramIndexRowFirst, diagramIndexColumnFirst = incrementRowColumn(diagramIndexRowFirst, diagramIndexColumnFirst, numRows, numColumns, 2)
+                diagramIndexRowSecond, diagramIndexColumnSecond = incrementRowColumn(diagramIndexRowSecond, diagramIndexColumnSecond, numRows, numColumns, 2)
 
 
-            return cipherText
+            if bAlphaLayer:
+                cipherText = np.dstack(cipherText,alpha_layer)
 
+            return cipherText.astype(int)
 
 
 #Playfair decryption algorithm
