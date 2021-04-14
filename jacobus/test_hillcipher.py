@@ -72,15 +72,28 @@ print("Encrypted text: ",txtENC)
 txtDEC = verander_die.Hill_Decrypt("RRFVSVCCT",txtENC)
 print("Decrypted text: ",txtDEC)
 
+
+
 # Test image that is not the correct length
 print("\n____________________________________________________")
 print("\nTest (6/7): Image that is not the correct size")
-p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images\office.png')
+p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images\einstein.png')
 p_img = np.asarray(p_File)
 imgENC = verander_die.Hill_Encrypt("RRFVSVCCT",p_img)
-Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images_test\office_enc_hill.png')
+Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images_test\einstein_enc_hill.png')
 imgDEC = verander_die.Hill_Decrypt("RRFVSVCCT",imgENC)
-Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images_test\office_dec_hill.png')
+Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images_test\einstein_dec_hill.png')
+
+
+# Test image that is not the correct length
+# print("\n____________________________________________________")
+# print("\nTest (6/7): Image that is not the correct size")
+# p_File = Image.open('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images\office.png')
+# p_img = np.asarray(p_File)
+# imgENC = verander_die.Hill_Encrypt("RRFVSVCCT",p_img)
+# Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images_test\office_enc_hill.png')
+# imgDEC = verander_die.Hill_Decrypt("RRFVSVCCT",imgENC)
+# Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\jacobus\images_test\office_dec_hill.png')
 
 # # Test a when key matrix does not have a modular multiplicative inverse
 # print("\n____________________________________________________")

@@ -170,7 +170,6 @@ def Transpose_Decrypt(key, stage, ciphertext):
     if type(ciphertext) is not np.ndarray:
     
         C = np.array(list(__cleanStringAlpha(ciphertext)))
-
         C = C.reshape((len(K),-1)).transpose()
 
         preP = np.empty(shape=(len(C[:,0]),len(K)),dtype=str)
@@ -280,4 +279,5 @@ def __cleanStringAlpha(strText):
 
 def __arrayToString(arrString):
     return ''.join(chr(int(i)+97) for i in arrString)
+
 
