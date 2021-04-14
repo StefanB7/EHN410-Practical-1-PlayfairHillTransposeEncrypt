@@ -45,9 +45,8 @@ def Playfair_Encrypt(key, plaintext):
             if (plaintext[index] == plaintext[index-1]):
                 plaintextCorrected += (plaintext[index-1])
                 plaintextCorrected += ('x')
-                plaintextCorrected += (plaintext[index])
                 indexConverted = index
-                index += 2
+                index += 1
             else:
                 plaintextCorrected += (plaintext[index - 1])
                 plaintextCorrected += (plaintext[index])
@@ -572,6 +571,7 @@ def generatePlayfairKeyAlpha(characterKey):
     #Store the result in the global playfair key
     playfairKey = charKeyMatrix.copy()
 
+    print(charKeyMatrix)
     return charKeyMatrix
 
 def generatePlayfairKeyArray(characterKey):
