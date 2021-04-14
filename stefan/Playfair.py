@@ -643,24 +643,3 @@ def generatePlayfairKeyArray(characterKey):
     playfairKey = keyMatrix.copy()
 
     return keyMatrix
-
-
-image = Image.open('o_alph.png')
-
-data = asarray(image)
-
-dataBack = Playfair_Encrypt("Stefan", data)
-
-print(dataBack.shape)
-
-image2 = Image.fromarray(dataBack.astype(np.uint8)).save("encrypted_oalph.png")
-
-print(Get_Playfair_Encryption_Matrix())
-
-imageEncrypted = Image.open('encrypted_oalph.png')
-
-dataEncrypted = asarray(imageEncrypted)
-
-dataBack = Playfair_Decrypt("Stefan", dataEncrypted)
-
-image2 = Image.fromarray(dataBack.astype(np.uint8)).save("decypted_oalph.png")
