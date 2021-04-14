@@ -1,4 +1,4 @@
-# Stefan Buys (u18...) and Jacobus Oettle (u18000135) - University of Pretoria
+# Stefan Buys (u18043098) and Jacobus Oettle (u18000135) - University of Pretoria
 # EHN 410 - 2021
 
 from PIL import Image
@@ -26,11 +26,6 @@ import string
 ############################################################
 #                      HILL CIPHER                         #
 ############################################################
-
-# TODO: kyk na array se formating orals (int, float, double ens)
-# TODO: key of encryption matrix return?
-
-K = None
  
 ############################ Main functions: ############################
 
@@ -42,6 +37,8 @@ def Hill_Encrypt(key, plaintext):
         m = 3
 
     C = []
+
+    global K
     K = __makeMatrix(key)
     
     flag_small = False
@@ -142,7 +139,12 @@ def Hill_Encrypt(key, plaintext):
             b_enc = b_enc.reshape(plaintext[:,:,2].shape[0],plaintext[:,:,2].shape[1])
 
         # Combine RGB matrices into one array
-        return np.dstack((r_enc,g_enc,b_enc))
+
+        if plaintext.shape[2] == 4:
+            alpha_layer = np.array(plaintext[:,:,3])
+            return np.dstack((r_enc.astype(int),g_enc.astype(int),b_enc.astype(int),alpha_layer.astype(int)))
+        else:
+            return np.dstack((r_enc.astype(int),g_enc.astype(int),b_enc.astype(int)))
 
 # Hill_Decrypt (key : String, ciphertext : String or Int ndarray)
 def Hill_Decrypt(key, ciphertext):
@@ -203,12 +205,16 @@ def Hill_Decrypt(key, ciphertext):
         b_dec = b_dec.reshape(ciphertext[:,:,2].shape[0],ciphertext[:,:,2].shape[1])
 
         # Combine RGB matrices into one array
-        return np.dstack((r_dec,g_dec,b_dec))
+        
+        if ciphertext.shape[2] == 4:
+            alpha_layer = np.array(ciphertext[:,:,3])
+            return np.dstack((r_dec.astype(int),g_dec.astype(int),b_dec.astype(int),alpha_layer.astype(int)))
+        else:
+            return np.dstack((r_dec.astype(int),g_dec.astype(int),b_dec.astype(int)))
 
 # Get_Hill_Encryption_Matrix ()
 def Get_Hill_Encryption_Matrix():
-    # TODO: float return ?
-    return K
+    return K.astype(float)
 
 ############################ Helper functions: ##########################
 
@@ -288,8 +294,6 @@ class errorHillCipher(Exception):
 ############################################################
 #                  TRANSPOSITION CIPHER                    #
 ############################################################
-
-# TODO: ek dink ek moet die image goed uithaal...
 
 ############################ Main functions: ############################
 

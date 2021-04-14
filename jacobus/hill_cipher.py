@@ -6,8 +6,6 @@ import numpy as np
 import string
 
 
-K = None
- 
 ############################ Main functions: ############################
 
 # Hill_Encrypt (key : String, plaintext : String or Int ndarray)
@@ -18,6 +16,8 @@ def Hill_Encrypt(key, plaintext):
         m = 3
 
     C = []
+
+    global K
     K = __makeMatrix(key)
     
     flag_small = False
@@ -58,6 +58,7 @@ def Hill_Encrypt(key, plaintext):
         r_channel = np.array(plaintext[:,:,0]).reshape(1,plaintext[:,:,0].shape[0]*plaintext[:,:,0].shape[1])[0]
         g_channel = np.array(plaintext[:,:,1]).reshape(1,plaintext[:,:,1].shape[0]*plaintext[:,:,1].shape[1])[0]
         b_channel = np.array(plaintext[:,:,2]).reshape(1,plaintext[:,:,2].shape[0]*plaintext[:,:,2].shape[1])[0]
+
 
         r_enc = []
         g_enc = []
@@ -118,7 +119,11 @@ def Hill_Encrypt(key, plaintext):
             b_enc = b_enc.reshape(plaintext[:,:,2].shape[0],plaintext[:,:,2].shape[1])
 
         # Combine RGB matrices into one array
-        return np.dstack((r_enc,g_enc,b_enc))
+        if plaintext.shape[2] == 4:
+            alpha_layer = np.array(plaintext[:,:,3])
+            return np.dstack((r_enc.astype(int),g_enc.astype(int),b_enc.astype(int),alpha_layer.astype(int)))
+        else:
+            return np.dstack((r_enc.astype(int),g_enc.astype(int),b_enc.astype(int)))
 
 # Hill_Decrypt (key : String, ciphertext : String or Int ndarray)
 def Hill_Decrypt(key, ciphertext):
@@ -179,12 +184,15 @@ def Hill_Decrypt(key, ciphertext):
         b_dec = b_dec.reshape(ciphertext[:,:,2].shape[0],ciphertext[:,:,2].shape[1])
 
         # Combine RGB matrices into one array
-        return np.dstack((r_dec,g_dec,b_dec))
+        if ciphertext.shape[2] == 4:
+            alpha_layer = np.array(ciphertext[:,:,3])
+            return np.dstack((r_dec.astype(int),g_dec.astype(int),b_dec.astype(int),alpha_layer.astype(int)))
+        else:
+            return np.dstack((r_dec.astype(int),g_dec.astype(int),b_dec.astype(int)))
 
 # Get_Hill_Encryption_Matrix ()
 def Get_Hill_Encryption_Matrix():
-    # TODO: float return ?
-    return K
+    return K.astype(float)
 
 ############################ Helper functions: ##########################
 
