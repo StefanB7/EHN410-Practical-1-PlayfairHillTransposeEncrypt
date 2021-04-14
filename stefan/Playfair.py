@@ -1,5 +1,3 @@
-#TODO: Vra oor die datatipes
-
 #EHN 410 - Practical 1 - 2021
 #Playfair encryption and decryption
 #Group 7
@@ -34,6 +32,9 @@ def Playfair_Encrypt(key, plaintext):
         #Clean the plaintext
         plaintext = cleanInput(plaintext)
 
+        #Replace the j's with i's:
+        plaintext = plaintext.replace('j','i')
+
         #Go through the plaintext, adding x's where two characters are in the same diagram
         plaintextCorrected = ""
 
@@ -52,6 +53,10 @@ def Playfair_Encrypt(key, plaintext):
                 plaintextCorrected += (plaintext[index])
                 indexConverted = index
                 index += 2
+
+        #Edge-case, if the length of the plaintext is 1, add the plaintext character to plaintextCorrected
+        if len(plaintext) == 1:
+            plaintextCorrected = plaintext[0];
 
         #Add the possible last character that wasn't added because it is not part of diagram
         indexConverted += 1
@@ -526,7 +531,7 @@ def generatePlayfairKeyAlpha(characterKey):
     characterKey = characterKey.lower()
 
     #Change all j's to i's in the key:
-    characterKey.replace('j','i')
+    characterKey = characterKey.replace('j','i')
 
     charKeyMatrix = np.empty((5, 5), dtype='U1')
     alreadyIn = []
@@ -627,48 +632,3 @@ def generatePlayfairKeyArray(characterKey):
     playfairKey = keyMatrix.copy()
 
     return keyMatrix
-
-
-
-
-
-
-
-
-############################ Testing: ##########################
-
-
-# Playfair_Encrypt("Hello","Mamma")
-# print(cleanInput("Hi!, //@@ Hoe gaan dit vandag met jou?"))
-#
-# print(toNumber('a'))
-#
-# print(generatePlayfairKeyAlpha("monarchy"))
-#
-# print(Playfair_Encrypt("monarchy","Helloi"))
-#
-# print(Playfair_Decrypt("monarchy","cfsupmsa"))
-#
-print(generatePlayfairKeyArray("Stefan"))
-#
-# row, column = incrementRowColumn(0,0,2,2,3)
-# print(row)
-# print(column)
-#
-#
-# #Images:
-image = Image.open('office.png')
-
-data = asarray(image)
-
-dataBack = Playfair_Encrypt("Stefan",data)
-
-image2 = Image.fromarray(dataBack).save("encrypted.png")
-
-imageEncrypted = Image.open('encrypted.png')
-
-dataEncrypted = asarray(imageEncrypted)
-
-dataBack = Playfair_Decrypt("Stefan",dataEncrypted)
-
-image2 = Image.fromarray(dataBack).save("decypted.jpeg")
