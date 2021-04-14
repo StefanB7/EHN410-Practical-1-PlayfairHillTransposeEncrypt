@@ -1,10 +1,34 @@
-# TODO: kyk na array se formating orals (int, float, double ens)
-# TODO: key of encryption matrix return?
+# Stefan Buys (u18...) and Jacobus Oettle (u18000135) - University of Pretoria
+# EHN 410 - 2021
 
 from PIL import Image
 import numpy as np
 import string
 
+############################################################
+#                   PLAYFAIR CIPHER                        #
+############################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################
+#                      HILL CIPHER                         #
+############################################################
+
+# TODO: kyk na array se formating orals (int, float, double ens)
+# TODO: key of encryption matrix return?
 
 K = None
  
@@ -259,4 +283,117 @@ def __arrayToString(arrString):
 
 class errorHillCipher(Exception):
     pass
+
+
+############################################################
+#                  TRANSPOSITION CIPHER                    #
+############################################################
+
+# TODO: ek dink ek moet die image goed uithaal...
+
+############################ Main functions: ############################
+
+# Transpose_ Encrypt (key : String, stage : Int, plaintext : String)
+def Transpose_Encrypt(key, stage, plaintext):
+
+    K = __cleanStringInt(key)
+
+    P = np.array(list(__cleanStringAlpha(plaintext)))
+
+    flag_small = False
+
+    # plaintext not long enough to be encrypted
+    while len(P) < len(K):
+        flag_small = True
+        P = np.concatenate((P,['x']), axis=None)
+
+    if flag_small == True:
+        P = P[:len(K)]
+        print("\nWARNING: plaintext length too short, plaintext filled with 'x'...\n")
+
+    int_l = len(P)
+    # if the plaintext length is not a multiple of m, concatenated the string with X's
+    if len(P) != (len(K)*(len(P)//len(K))):
+        print("\nWARNING: plaintext length too short, plaintext filled with 'x'...\n")
+        arrX = np.array(['x']*len(P))
+        P = np.concatenate((P,arrX), axis=None)
+        P = P[:len(K)*(int_l//len(K))+len(K)]
+
+    P = P.reshape(-1,(len(K)))
+
+    C = []
+
+    # 1 stage encryption
+    for i in range(len(K)):
+        pos = np.argmin(K)
+        K[pos] = 99
+        C = np.concatenate((C,P[:,pos]),axis=None)
+
+    # 2 stage encryption
+    if stage==2:
+        P = C
+        K = __cleanStringInt(key)
+        P = P.reshape(-1,(len(K)))
+        C = []
+
+        for i in range(len(K)):
+            pos = np.argmin(K)
+            K[pos] = 99
+            C = np.concatenate((C,P[:,pos]),axis=None)
+
+    return "".join(C)
+    
+# Transpose_ Decrypt (key : String, stage : Int, ciphertext : String)
+def Transpose_Decrypt(key, stage, ciphertext):
+    
+    K = __cleanStringInt(key)
+    
+    C = np.array(list(__cleanStringAlpha(ciphertext)))
+    C = C.reshape((len(K),-1)).transpose()
+
+    preP = np.empty(shape=(len(C[:,0]),len(K)),dtype=str)
+
+    # 1 stage decryption
+    for i in range(len(K)):
+        pos = np.argmin(K)
+        K[pos] = 99
+        preP[:,pos] = C[:,i]
+
+    preP = preP.reshape((1,-1))[0]
+
+    P = "".join(preP)
+    
+    # 2 stage decryption
+    if stage==2:
+        C = np.array(list(__cleanStringAlpha(P)))
+        K = __cleanStringInt(key)
+        C = C.reshape((len(K),-1)).transpose()
+
+        preP = np.empty(shape=(len(C[:,0]),len(K)),dtype=str)
+
+        for i in range(len(K)):
+            pos = np.argmin(K)
+            K[pos] = 99
+            preP[:,pos] = C[:,i]
+
+        preP = preP.reshape((1,-1))[0]
+
+        P = "".join(preP)
+
+    return P
+
+############################ Helper functions: ##########################
+def __cleanStringInt(strText):
+    s = strText.lower()
+    s = ''.join(str(ord(i)-97)+',' for i in s if i.isalpha())
+    return np.fromstring(s, dtype=int, sep=',')
+
+def __cleanStringAlpha(strText):
+    s = strText.lower()
+    s = ''.join(i for i in s if i.isalpha())
+    return s
+
+def __arrayToString(arrString):
+    return ''.join(chr(int(i)+97) for i in arrString)
+
 
