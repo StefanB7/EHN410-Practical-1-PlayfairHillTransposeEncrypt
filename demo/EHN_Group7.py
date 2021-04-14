@@ -261,11 +261,8 @@ def Playfair_Encrypt(key, plaintext):
                                                                                      diagramIndexColumnSecond, numRows,
                                                                                      numColumns, 2)
 
-        print(cipherText.shape)
         if bAlphaLayer:
             cipherText = np.dstack((cipherText, alpha_layer))
-
-        print(cipherText.shape)
 
         return cipherText.astype(int)
 
@@ -641,7 +638,7 @@ def generatePlayfairKeyArray(characterKey):
                 column = abs(diagonal)
 
     # Store the result in the global playfair key
-    playfairKey = keyMatrix.copy()
+    playfairKey = keyMatrix.copy().astype(float)
 
     return keyMatrix
 
