@@ -571,7 +571,6 @@ def generatePlayfairKeyAlpha(characterKey):
     #Store the result in the global playfair key
     playfairKey = charKeyMatrix.copy()
 
-    print(charKeyMatrix)
     return charKeyMatrix
 
 def generatePlayfairKeyArray(characterKey):
