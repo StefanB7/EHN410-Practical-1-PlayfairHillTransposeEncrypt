@@ -22,6 +22,7 @@ txtENC = EHN_Group7.Playfair_Encrypt("StefanJacobus","a")
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Playfair_Decrypt("StefanJacobus",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Playfair_Encryption_Matrix())
 
 # Test plaintext that is not the correct length
 print("\n____________________________________________________")
@@ -34,6 +35,7 @@ txtENC = EHN_Group7.Playfair_Encrypt("ElongMusk","We have been captured, cease a
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Playfair_Decrypt("ElongMusk",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Playfair_Encryption_Matrix())
 
 # Test unsupported plaintext
 print("\n____________________________________________________")
@@ -46,6 +48,7 @@ txtENC = EHN_Group7.Playfair_Encrypt("UgandaKenyaNigeria","The following symbols
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Playfair_Decrypt("UgandaKenyaNigeria",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Playfair_Encryption_Matrix())
 
 #Test a long key:
 print("\n____________________________________________________")
@@ -58,6 +61,7 @@ txtENC = EHN_Group7.Playfair_Encrypt("theenemyiswithinandwemig","that's a fat ca
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Playfair_Decrypt("theenemyiswithinandwemig",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Playfair_Encryption_Matrix())
 
 # Test a long plaintext
 print("\n____________________________________________________")
@@ -70,6 +74,7 @@ txtENC = EHN_Group7.Playfair_Encrypt("rickastley","Your time is limited, so don'
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Playfair_Decrypt("rickastley",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Playfair_Encryption_Matrix())
 
 ##### IMAGE DECRYPTION AND ENCRYPTION TESTING #####
 
@@ -83,6 +88,7 @@ imgENC = EHN_Group7.Playfair_Encrypt("JacobusStefanEHNPrakties",p_img)
 Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\mountains_encrypted_playfair.png')
 imgDEC = EHN_Group7.Playfair_Decrypt("JacobusStefanEHNPrakties",imgENC)
 Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\mountains_decrypted_playfair.png')
+print("Key matrix:\n",EHN_Group7.Get_Playfair_Encryption_Matrix())
 
 #Test another image encryption and decryption
 print("\n____________________________________________________")
@@ -94,3 +100,4 @@ imgENC = EHN_Group7.Playfair_Encrypt("Therearenobearsinsouthaf",p_img)
 Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\\bear_encrypted_playfair.png')
 imgDEC = EHN_Group7.Playfair_Decrypt("Therearenobearsinsouthaf",imgENC)
 Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\\bear_decrypted_playfair.png')
+print("Key matrix:\n",EHN_Group7.Get_Playfair_Encryption_Matrix())

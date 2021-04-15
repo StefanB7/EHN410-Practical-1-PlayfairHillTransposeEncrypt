@@ -20,6 +20,8 @@ txtENC = EHN_Group7.Hill_Encrypt("RRFVSVCCT","a")
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Hill_Decrypt("RRFVSVCCT",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
+
 
 # Test plaintext that is not the correct length
 print("\n____________________________________________________")
@@ -32,6 +34,7 @@ txtENC = EHN_Group7.Hill_Encrypt("RRFVSVCCT","jeep")
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Hill_Decrypt("RRFVSVCCT",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
 
 # Test unsupported plaintext
 print("\n____________________________________________________")
@@ -44,6 +47,7 @@ txtENC = EHN_Group7.Hill_Encrypt("RRFVSVCCT","The following symbols should not b
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Hill_Decrypt("RRFVSVCCT",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
 
 # Test a 2x2 key matrix
 print("\n____________________________________________________")
@@ -56,6 +60,7 @@ txtENC = EHN_Group7.Hill_Encrypt("DDCF","that's a fat cat")
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Hill_Decrypt("DDCF",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
 
 print("\n____________________________________________________")
 print("\nTest (5/9): Return of the key matrix")
@@ -72,6 +77,7 @@ txtENC = EHN_Group7.Hill_Encrypt("RRFVSVCCT","that's a fat cat")
 print("Encrypted text: ",txtENC)
 txtDEC = EHN_Group7.Hill_Decrypt("RRFVSVCCT",txtENC)
 print("Decrypted text: ",txtDEC)
+print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
 
 # Test image that is not the correct length
 print("\n____________________________________________________")
@@ -82,6 +88,7 @@ imgENC = EHN_Group7.Hill_Encrypt("RRFVSVCCT",p_img)
 Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\mountains_encrypted_hill.png')
 imgDEC = EHN_Group7.Hill_Decrypt("RRFVSVCCT",imgENC)
 Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\mountains_decrypted_hill.png')
+print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
 
 # Correct sized image
 print("\n____________________________________________________")
@@ -92,6 +99,7 @@ imgENC = EHN_Group7.Hill_Encrypt("RRFVSVCCT",p_img)
 Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\\bear_encrypted_hill.png')
 imgDEC = EHN_Group7.Hill_Decrypt("RRFVSVCCT",imgENC)
 Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\\bear_decrypted_hill.png')
+print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
 
 print("\n____________________________________________________")
 print("\nTest (8/9): Image that is not the correct size")
@@ -101,6 +109,7 @@ imgENC = EHN_Group7.Hill_Encrypt("RRFVSVCCT",p_img)
 Image.fromarray(imgENC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\office_encrypted_hill.png')
 imgDEC = EHN_Group7.Hill_Decrypt("RRFVSVCCT",imgENC)
 Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTransposeEncrypt\demo\office_decrypted_hill.png')
+print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
 
 # # Test a when key matrix does not have a modular multiplicative inverse
 # print("\n____________________________________________________")
@@ -113,3 +122,4 @@ Image.fromarray(imgDEC.astype(np.uint8)).save('EHN410_Prak1_PlayfairHillTranspos
 # print("Encrypted text: ",txtENC)
 # txtDEC = EHN_Group7.Hill_Decrypt("catamaran",txtENC)
 # print("Decrypted text: ",txtDEC)
+# print("Key matrix:\n",EHN_Group7.Get_Hill_Encryption_Matrix())
